@@ -48,12 +48,19 @@ venv\Scripts\activate
 python manage.py migrate
 ```
 
-5. Crear superusuario:
+5. Configurar variables de entorno:
+```bash
+cp .env.example .env
+# En Windows PowerShell:
+# copy .env.example .env
+```
+
+6. Crear superusuario:
 ```bash
 python manage.py createsuperuser
 ```
 
-6. Ejecutar servidor:
+7. Ejecutar servidor:
 ```bash
 python manage.py runserver
 ```
