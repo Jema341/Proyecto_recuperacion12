@@ -25,12 +25,27 @@
       border-radius: 10px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
-    /* Colores llamativos para textos de registro */
-    .registration-card h3 { color: #ff6b6b; font-weight: 700; }
-    label { color: #2b6bff; font-weight: 600; }
-    .registration-card a { color: #ff9f43; font-weight: 600; }
-    .registration-card a:hover { color: #ff6b6b; }
-    .registration-card .btn-primary { background: linear-gradient(90deg,#ff6b6b,#ff9f43); border-color: #ff6b6b; }
+    /* Colores llamativos y mejoras de usabilidad para registro */
+    .registration-card h3 { color: #ff6b6b; font-weight: 700; letter-spacing: 0.3px; }
+    .registration-card label { color: #2b6bff; font-weight: 600; }
+    .registration-card a { color: #ff9f43; font-weight: 600; text-decoration: none; }
+    .registration-card a:hover { color: #ff6b6b; text-decoration: underline; }
+
+    /* Inputs y focus states */
+    .registration-card .form-control { border: 1px solid #e6e9f0; transition: border-color .15s ease, box-shadow .15s ease; }
+    .registration-card .form-control:focus { border-color: #2b6bff; box-shadow: 0 0 0 0.2rem rgba(43,107,255,0.12); outline: none; }
+    .registration-card ::placeholder { color: #9aa3c1; opacity: 1; }
+
+    /* Botón con degradado y hover sutil */
+    .registration-card .btn-primary { background: linear-gradient(90deg,#ff6b6b,#ff9f43); border: none; box-shadow: none; }
+    .registration-card .btn-primary:hover { filter: brightness(0.96); }
+
+    /* Alert style ligero */
+    .registration-card .alert { border-left: 4px solid #ff6b6b; }
+
+    @media (max-width: 576px) {
+      .registration-card { padding: 24px; }
+    }
   </style>
 </head>
 <body class="bg-theme">
