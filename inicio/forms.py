@@ -84,3 +84,15 @@ class VentaForm(forms.ModelForm):
             'estado': forms.Select(attrs={'class': 'form-control'}),
             'notas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Notas adicionales sobre esta venta'}),
         }
+
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get('cantidad')
+        if cantidad is not None and cantidad <= 0:
+            raise forms.ValidationError('La cantidad debe ser mayor que cero.')
+        return cantidad
+
+    def clean_precio_unitario(self):
+        precio_unitario = self.cleaned_data.get('precio_unitario')
+        if precio_unitario is not None and precio_unitario <= 0:
+            raise forms.ValidationError('El precio unitario debe ser mayor que cero.')
+        return precio_unitario
