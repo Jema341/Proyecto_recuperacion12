@@ -50,38 +50,40 @@
 		      {% endfor %}
 		    </div>
 		  {% endif %}
-		    <form method="POST" action="{% url 'login' %}">
-			  {% csrf_token %}
-			  <div class="form-group">
-			  <label for="username">Usuario</label>
-			   <div class="position-relative has-icon-right">
-				  <input type="text" id="username" name="username" class="form-control input-shadow" placeholder="Ingrese su usuario" required>
-				  <div class="form-control-position">
-					  <i class="icon-user"></i>
-				  </div>
-			   </div>
+	    <form method="POST" action="{% url 'login' %}">
+		  {% csrf_token %}
+		  <div class="form-group">
+		  <label for="username">Usuario</label>
+		   <div class="position-relative has-icon-right">
+			  <input type="text" id="username" name="username" class="form-control input-shadow" placeholder="Ingrese su usuario" required>
+			  <div class="form-control-position">
+				  <i class="icon-user"></i>
 			  </div>
-			  <div class="form-group">
-			  <label for="password">Contraseña</label>
-			   <div class="position-relative has-icon-right">
-				  <input type="password" id="password" name="password" class="form-control input-shadow" placeholder="Ingrese su contraseña" required>
-				  <div class="form-control-position">
-					  <i class="icon-lock"></i>
-				  </div>
-			   </div>
+		   </div>
+		  </div>
+		  <div class="form-group">
+		  <label for="password">Contraseña</label>
+		   <div class="position-relative has-icon-right">
+			  <input type="password" id="password" name="password" class="form-control input-shadow" placeholder="Ingrese su contraseña" required>
+			  <div class="form-control-position">
+				  <i class="icon-lock"></i>
 			  </div>
-			<div class="form-row">
-			 <div class="form-group col-6">
-			   <div class="icheck-material-white">
+		   </div>
+		  </div>
+		<div class="form-row">
+		 <div class="form-group col-6">
+		   <div class="icheck-material-white">
                 <input type="checkbox" id="remember" name="remember" />
                 <label for="remember">Recuérdame</label>
-			  </div>
-			 </div>
-			 <div class="form-group col-6 text-right">
-			  <a href="#">¿Olvidó su contraseña?</a>
-			 </div>
-			</div>
-			 <button type="submit" class="btn btn-light btn-block">Iniciar Sesión</button>		 	 <a href="{% url 'guest_login' %}" class="btn btn-outline-light btn-block mt-2">Ingresar como Invitado</a>			 </form>
+		  </div>
+		 </div>
+		 <div class="form-group col-6 text-right">
+		  <a href="#">¿Olvidó su contraseña?</a>
+		 </div>
+		</div>
+		 <button type="submit" class="btn btn-light btn-block">Iniciar Sesión</button>
+		 <a href="{% url 'guest_login' %}" class="btn btn-outline-light btn-block mt-2">Ingresar como Invitado</a>
+		 </form>
 		   </div>
 		  </div>
 		  <div class="card-footer text-center py-3">
