@@ -88,7 +88,7 @@
 
 ## Autenticación
 
-Actualmente, la aplicación requiere estar logueado en el panel admin para acceder a datos.
+Actualmente, la aplicación requiere estar logueado para acceder a los datos de la API y las páginas del panel administrativo.
 
 ## Versión
 
