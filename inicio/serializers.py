@@ -17,6 +17,7 @@ class ProductoSerializer:
             'precio': float(producto.precio),
             'stock': producto.stock,
             'categoria': producto.categoria,
+            'imagen_url': producto.imagen.url if producto.imagen else None,
             'fecha_creacion': producto.fecha_creacion.isoformat(),
         }
 
@@ -36,6 +37,7 @@ class ClienteSerializer:
             'direccion': cliente.direccion,
             'ciudad': cliente.ciudad,
             'fecha_registro': cliente.fecha_registro.isoformat(),
+            'ventas_totales': cliente.venta_set.count(),
         }
 
     @staticmethod

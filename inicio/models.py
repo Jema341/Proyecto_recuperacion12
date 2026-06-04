@@ -1,9 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Modelo para productos
 class Producto(models.Model):
-    nombre = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200, db_index=True)
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0)
@@ -20,10 +23,44 @@ class Producto(models.Model):
         ordering = ['-fecha_creacion']
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    phone = models.CharField(max_length=30, blank=True)
+    company = models.CharField(max_length=150, blank=True)
+    location = models.CharField(max_length=150, blank=True)
+    bio = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Perfil de {self.user.username}"
+
+    @property
+    def full_name(self):
+        return f"{self.user.first_name} {self.user.last_name}".strip() or self.user.username
+
+    def get_avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        return ''
+
+
+# Crear perfil automáticamente al crear un usuario
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    profile, created = Profile.objects.get_or_create(user=instance)
+    profile.save()
+
+
 # Modelo para clientes
 class Cliente(models.Model):
     nombre = models.CharField(max_length=200)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, db_index=True)
     telefono = models.CharField(max_length=20, blank=True)
     direccion = models.TextField(blank=True)
     ciudad = models.CharField(max_length=100, blank=True)
@@ -44,7 +81,7 @@ class Venta(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=0)
     fecha_venta = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(
         max_length=20,
@@ -58,9 +95,12 @@ class Venta(models.Model):
     notas = models.TextField(blank=True, null=True, help_text="Notas adicionales sobre la venta")
 
     def save(self, *args, **kwargs):
-        if self.cantidad is not None and self.precio_unitario is not None:
-            self.total = self.precio_unitario * self.cantidad
+        self.total = self.cantidad * self.precio_unitario
         super().save(*args, **kwargs)
+
+    @property
+    def total_calculado(self):
+        return self.cantidad * self.precio_unitario
 
     def __str__(self):
         return f"Venta {self.id} - {self.cliente.nombre}"
