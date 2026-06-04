@@ -88,6 +88,16 @@
         </div>
       </div>
 
+      <!-- Gráfico de Ventas por Categoría -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">📊 Ventas por Categoría</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="categoriasChart" height="100"></canvas>
+        </div>
+      </div>
+
       <!-- Clientes VIP -->
       <div class="card mt-4">
         <div class="card-header">
@@ -187,5 +197,57 @@
       }
     }
   });
+
+  // Gráfico de Ventas por Categoría
+  const categoriasLabels = {{ categorias|safe }};
+  const categoriasValues = {{ valores_categorias|safe }};
+  const categoriasColors = {{ colores_categorias|safe }};
+
+  // Si hay datos de categorías
+  if (categoriasLabels.length > 0) {
+    const ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
+    const categoriasChart = new Chart(ctxCategorias, {
+      type: 'bar',
+      data: {
+        labels: categoriasLabels,
+        datasets: [{
+          label: 'Ventas por Categoría ($)',
+          data: categoriasValues,
+          backgroundColor: categoriasColors,
+          borderColor: categoriasColors.map(color => {
+            // Oscurecer el color del borde
+            return color;
+          }),
+          borderWidth: 2,
+          borderRadius: 4,
+          hoverBackgroundColor: '#ff6b6b'
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: '#333',
+              font: { size: 14 }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toFixed(2);
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 </script>
 

@@ -483,6 +483,30 @@ def reportes(request):
         ).aggregate(total=Sum('total'))['total'] or 0
         ventas_por_mes.append(float(ventas_mes))
     
+    # Ventas por categoría
+    categorias = []
+    ventas_por_categoria = []
+    
+    categorias_data = Producto.objects.filter(
+        venta__in=ventas_filtro.filter(estado='completada')
+    ).values('categoria').annotate(
+        total=Sum('venta__total')
+    ).order_by('-total')
+    
+    # Colores para las categorías
+    colores_categorias = [
+        '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+        '#ec4899', '#06b6d4', '#14b8a6', '#f97316', '#6366f1'
+    ]
+    
+    for idx, cat in enumerate(categorias_data):
+        categoria_nombre = cat['categoria'] if cat['categoria'] else 'Sin Categoría'
+        categorias.append(categoria_nombre)
+        ventas_por_categoria.append({
+            'valor': float(cat['total'] or 0),
+            'color': colores_categorias[idx % len(colores_categorias)]
+        })
+    
     # Clientes VIP (Top 5 por ingresos)
     clientes_vip = []
     clientes_data = Cliente.objects.annotate(
@@ -499,6 +523,11 @@ def reportes(request):
             'promedio_compra': (cliente.total_gastado / cliente.total_compras) if cliente.total_compras > 0 else 0
         })
     
+    # Preparar datos de categorías para JSON
+    categorias_json = json.dumps(categorias)
+    valores_categorias_json = json.dumps([cat['valor'] for cat in ventas_por_categoria])
+    colores_categorias_json = json.dumps([cat['color'] for cat in ventas_por_categoria])
+    
     context = {
         'total_productos': total_productos,
         'total_clientes': total_clientes,
@@ -506,6 +535,9 @@ def reportes(request):
         'ventas_completadas': ventas_completadas,
         'meses': json.dumps(meses),
         'ventas_por_mes': json.dumps(ventas_por_mes),
+        'categorias': categorias_json,
+        'valores_categorias': valores_categorias_json,
+        'colores_categorias': colores_categorias_json,
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
         'clientes_vip': clientes_vip,
