@@ -50,6 +50,11 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+7. Correr pruebas:
+```bash
+python manage.py test
+```
+
 Acceder a: http://127.0.0.1:8000/
 
 ## Estructura del Proyecto
