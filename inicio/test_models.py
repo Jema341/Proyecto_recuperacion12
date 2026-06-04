@@ -37,3 +37,34 @@ class ClienteTestCase(TestCase):
         cliente = Cliente.objects.get(nombre="Juan Pérez")
         self.assertEqual(cliente.email, "juan@example.com")
         self.assertEqual(cliente.ciudad, "Quito")
+
+    def test_cliente_str(self):
+        cliente = Cliente.objects.get(nombre="Juan Pérez")
+        self.assertEqual(str(cliente), "Juan Pérez")
+
+
+class VentaTestCase(TestCase):
+    def setUp(self):
+        self.producto = Producto.objects.create(
+            nombre="Mouse",
+            descripcion="Mouse de prueba",
+            precio=20.00,
+            stock=25,
+            categoria="Accesorios"
+        )
+        self.cliente = Cliente.objects.create(
+            nombre="Ana Gomez",
+            email="ana@example.com"
+        )
+
+    def test_venta_total_autocalculado(self):
+        venta = Venta.objects.create(
+            cliente=self.cliente,
+            producto=self.producto,
+            cantidad=3,
+            precio_unitario=20.00,
+            total=0,
+            estado='completada'
+        )
+        self.assertEqual(float(venta.total), 60.00)
+        self.assertEqual(str(venta), f"Venta {venta.id} - {self.cliente.nombre}")

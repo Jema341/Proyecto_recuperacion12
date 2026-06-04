@@ -1,10 +1,11 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Producto, Cliente, Venta, Profile
+from .models import Producto, Cliente, Venta
+from .forms import ProductoForm, ClienteForm, VentaForm
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
@@ -16,7 +17,31 @@ from reportlab.lib.units import inch
 from io import BytesIO
 
 
+def parse_date(value, format='%Y-%m-%d'):
+    """Convierte una cadena de fecha en un objeto datetime.
+
+    Args:
+        value (str): Fecha en formato string.
+        format (str): Formato esperado de la fecha.
+
+    Returns:
+        datetime|None: Objeto datetime o None si no se puede convertir.
+    """
+    try:
+        return datetime.strptime(value, format)
+    except (ValueError, TypeError):
+        return None
+
+
+def end_of_day(value):
+    """Devuelve la fecha con la hora al final del día."""
+    if value:
+        return value.replace(hour=23, minute=59, second=59)
+    return value
+
+
 # Vista de inicio
+@login_required(login_url='login')
 def inicio(request):
     total_productos = Producto.objects.count()
     total_clientes = Cliente.objects.count()
@@ -36,28 +61,15 @@ def inicio(request):
     return render(request, 'index.html', context)
 
 
+@login_required(login_url='login')
 def dashboard(request):
     # Parámetros de fecha para filtros
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     
     # Convertir strings a datetime
-    if fecha_inicio:
-        try:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        except:
-            fecha_inicio_dt = None
-    else:
-        fecha_inicio_dt = None
-    
-    if fecha_fin:
-        try:
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        except:
-            fecha_fin_dt = None
-    else:
-        fecha_fin_dt = None
+    fecha_inicio_dt = parse_date(fecha_inicio)
+    fecha_fin_dt = end_of_day(parse_date(fecha_fin))
     
     # Base de ventas filtrada por rango de fechas
     if fecha_inicio_dt and fecha_fin_dt:
@@ -181,18 +193,22 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
+@login_required(login_url='login')
 def ui_icons(request):
     return render(request, 'ui-icons.html')
 
 
+@login_required(login_url='login')
 def forms(request):
     return render(request, 'forms.html')
 
 
+@login_required(login_url='login')
 def tables(request):
     return render(request, 'tables.html')
 
 
+@login_required(login_url='login')
 def calendar(request):
     return render(request, 'calendar.html')
 
@@ -253,6 +269,7 @@ def registration(request):
 
 
 # Productos
+@login_required(login_url='login')
 def productos(request):
     productos = Producto.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -300,14 +317,17 @@ def productos(request):
 
 
 def producto_detalle(request, id):
-    producto = Producto.objects.get(id=id)
+    producto = get_object_or_404(Producto, id=id)
     
-    # Obtener ventas del producto
     ventas_producto = Venta.objects.filter(producto=producto, estado='completada').order_by('-fecha_venta')
     
-    # Calcular estadísticas
-    total_unidades_vendidas = sum(v.cantidad for v in ventas_producto)
-    ingresos_totales = sum(v.total for v in ventas_producto)
+    # Calcular estadísticas usando agregados cuando sea posible
+    agregados = ventas_producto.aggregate(
+        total_unidades=Sum('cantidad'),
+        ingresos_totales=Sum('total')
+    )
+    total_unidades_vendidas = agregados['total_unidades'] or 0
+    ingresos_totales = agregados['ingresos_totales'] or 0
     precio_promedio = ingresos_totales / total_unidades_vendidas if total_unidades_vendidas > 0 else 0
     
     # Últimas 10 ventas
@@ -327,56 +347,36 @@ def producto_detalle(request, id):
 
 
 def editar_producto(request, id):
-    producto = Producto.objects.get(id=id)
+    producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
-        producto.nombre = request.POST.get('nombre', producto.nombre)
-        producto.descripcion = request.POST.get('descripcion', producto.descripcion)
-        producto.precio = request.POST.get('precio', producto.precio)
-        producto.stock = request.POST.get('stock', producto.stock)
-        producto.categoria = request.POST.get('categoria', producto.categoria)
-        
-        # Manejo de imagen
-        if 'imagen' in request.FILES:
-            producto.imagen = request.FILES['imagen']
-        
-        producto.save()
-        messages.success(request, 'Producto actualizado correctamente')
-        return redirect('productos')
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto actualizado correctamente')
+            return redirect('productos')
+    else:
+        form = ProductoForm(instance=producto)
     
-    return render(request, 'editar_producto.html', {'producto': producto})
+    return render(request, 'editar_producto.html', {'form': form, 'producto': producto})
 
 
 def crear_producto(request):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
-        precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
-        categoria = request.POST.get('categoria')
-        
-        producto = Producto(
-            nombre=nombre,
-            descripcion=descripcion,
-            precio=precio,
-            stock=stock,
-            categoria=categoria
-        )
-        
-        # Manejo de imagen
-        if 'imagen' in request.FILES:
-            producto.imagen = request.FILES['imagen']
-        
-        producto.save()
-        messages.success(request, 'Producto creado correctamente')
-        return redirect('productos')
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto creado correctamente')
+            return redirect('productos')
+    else:
+        form = ProductoForm()
     
-    return render(request, 'crear_producto.html')
+    return render(request, 'crear_producto.html', {'form': form})
 
 
 def eliminar_producto(request, id):
     """Elimina un producto con confirmación"""
-    producto = Producto.objects.get(id=id)
+    producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
         nombre_producto = producto.nombre
@@ -394,7 +394,7 @@ def eliminar_producto(request, id):
 
 def eliminar_cliente(request, id):
     """Elimina un cliente con confirmación"""
-    cliente = Cliente.objects.get(id=id)
+    cliente = get_object_or_404(Cliente, id=id)
     
     if request.method == 'POST':
         nombre_cliente = cliente.nombre
@@ -415,7 +415,7 @@ def eliminar_cliente(request, id):
 
 def eliminar_venta(request, id):
     """Elimina una venta con confirmación"""
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     if request.method == 'POST':
         venta_id = venta.id
@@ -432,6 +432,7 @@ def eliminar_venta(request, id):
 
 
 # Clientes
+@login_required(login_url='login')
 def clientes(request):
     clientes = Cliente.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -452,11 +453,9 @@ def clientes(request):
     
     # Filtro por fecha de registro
     if fecha_desde:
-        try:
-            fecha_desde_dt = datetime.strptime(fecha_desde, '%Y-%m-%d')
+        fecha_desde_dt = parse_date(fecha_desde)
+        if fecha_desde_dt:
             clientes = clientes.filter(fecha_registro__gte=fecha_desde_dt)
-        except:
-            pass
     
     # Obtener ciudades únicas
     ciudades = Cliente.objects.values_list('ciudad', flat=True).distinct()
@@ -478,8 +477,9 @@ def clientes(request):
     return render(request, 'clientes.html', context)
 
 
+@login_required(login_url='login')
 def cliente_detalle(request, id):
-    cliente = Cliente.objects.get(id=id)
+    cliente = get_object_or_404(Cliente, id=id)
     
     # Obtener ventas del cliente
     ventas_completadas = Venta.objects.filter(cliente=cliente, estado='completada')
@@ -517,23 +517,24 @@ def cliente_detalle(request, id):
     return render(request, 'cliente_detalle.html', context)
 
 
+@login_required(login_url='login')
 def editar_cliente(request, id):
-    cliente = Cliente.objects.get(id=id)
+    cliente = get_object_or_404(Cliente, id=id)
     
     if request.method == 'POST':
-        cliente.nombre = request.POST.get('nombre', cliente.nombre)
-        cliente.email = request.POST.get('email', cliente.email)
-        cliente.telefono = request.POST.get('telefono', cliente.telefono)
-        cliente.direccion = request.POST.get('direccion', cliente.direccion)
-        cliente.ciudad = request.POST.get('ciudad', cliente.ciudad)
-        cliente.save()
-        messages.success(request, 'Cliente actualizado correctamente')
-        return redirect('clientes')
+        form = ClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente actualizado correctamente')
+            return redirect('clientes')
+    else:
+        form = ClienteForm(instance=cliente)
     
-    return render(request, 'editar_cliente.html', {'cliente': cliente})
+    return render(request, 'editar_cliente.html', {'form': form, 'cliente': cliente})
 
 
 # Ventas
+@login_required(login_url='login')
 def ventas(request):
     ventas_list = Venta.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -555,19 +556,14 @@ def ventas(request):
     
     # Filtro por rango de fechas
     if fecha_inicio:
-        try:
-            fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_inicio_obj = parse_date(fecha_inicio)
+        if fecha_inicio_obj:
             ventas_list = ventas_list.filter(fecha_venta__gte=fecha_inicio_obj)
-        except:
-            pass
     
     if fecha_fin:
-        try:
-            fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            fecha_fin_obj = fecha_fin_obj.replace(hour=23, minute=59, second=59)
+        fecha_fin_obj = end_of_day(parse_date(fecha_fin))
+        if fecha_fin_obj:
             ventas_list = ventas_list.filter(fecha_venta__lte=fecha_fin_obj)
-        except:
-            pass
     
     estados_choices = [('', 'Todos'), ('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')]
     
@@ -583,27 +579,29 @@ def ventas(request):
     return render(request, 'ventas.html', context)
 
 
+@login_required(login_url='login')
 def editar_venta(request, id):
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     if request.method == 'POST':
-        venta.cantidad = request.POST.get('cantidad', venta.cantidad)
-        venta.precio_unitario = request.POST.get('precio_unitario', venta.precio_unitario)
-        venta.total = float(venta.cantidad) * float(venta.precio_unitario)
-        venta.estado = request.POST.get('estado', venta.estado)
-        venta.save()
-        messages.success(request, 'Venta actualizada correctamente')
-        return redirect('ventas')
+        form = VentaForm(request.POST, instance=venta)
+        if form.is_valid():
+            venta = form.save(commit=False)
+            venta.total = float(venta.cantidad) * float(venta.precio_unitario)
+            venta.save()
+            messages.success(request, 'Venta actualizada correctamente')
+            return redirect('ventas')
+    else:
+        form = VentaForm(instance=venta)
     
-    estados_choices = [('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')]
-    
-    return render(request, 'editar_venta.html', {'venta': venta, 'estados_choices': estados_choices})
+    return render(request, 'editar_venta.html', {'form': form, 'venta': venta})
 
 
+@login_required(login_url='login')
 def descargar_recibo_venta(request, id):
     """Genera y descarga un recibo PDF de una venta"""
     
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     # Crear respuesta PDF
     response = HttpResponse(content_type='application/pdf')
@@ -782,9 +780,10 @@ def descargar_recibo_venta(request, id):
     return response
 
 
+@login_required(login_url='login')
 def cambiar_estado_venta(request, id, estado):
     """Cambia rápidamente el estado de una venta"""
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     # Validar que el estado sea válido
     estados_validos = ['pendiente', 'completada', 'cancelada']
@@ -802,29 +801,15 @@ def cambiar_estado_venta(request, id, estado):
 
 
 # Reportes
+@login_required(login_url='login')
 def reportes(request):
     # Parámetros de fecha
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     
     # Convertir strings a datetime
-    if fecha_inicio:
-        try:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        except:
-            fecha_inicio_dt = None
-    else:
-        fecha_inicio_dt = None
-    
-    if fecha_fin:
-        try:
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            # Agregar un día para incluir todo el día final
-            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        except:
-            fecha_fin_dt = None
-    else:
-        fecha_fin_dt = None
+    fecha_inicio_dt = parse_date(fecha_inicio)
+    fecha_fin_dt = end_of_day(parse_date(fecha_fin))
     
     # Filtrar ventas por rango de fechas
     ventas_filtro = Venta.objects.all()
@@ -950,6 +935,7 @@ def reportes(request):
     return render(request, 'reportes.html', context)
 
 
+@login_required(login_url='login')
 def exportar_reporte_pdf(request):
     """Genera y descarga un reporte en PDF con filtro de fechas"""
     
@@ -958,23 +944,8 @@ def exportar_reporte_pdf(request):
     fecha_fin = request.GET.get('fecha_fin')
     
     # Convertir strings a datetime
-    if fecha_inicio:
-        try:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        except:
-            fecha_inicio_dt = None
-    else:
-        fecha_inicio_dt = None
-    
-    if fecha_fin:
-        try:
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            # Agregar un día para incluir todo el día final
-            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        except:
-            fecha_fin_dt = None
-    else:
-        fecha_fin_dt = None
+    fecha_inicio_dt = parse_date(fecha_inicio)
+    fecha_fin_dt = end_of_day(parse_date(fecha_fin))
     
     # Filtrar ventas por rango de fechas
     ventas_filtro = Venta.objects.all()
@@ -1219,45 +1190,18 @@ def exportar_reporte_pdf(request):
     return response
 
 
-def get_user_profile(user):
-    profile, created = Profile.objects.get_or_create(user=user)
-    return profile
-
-
 # Perfil de Usuario
 @login_required(login_url='login')
+@login_required(login_url='login')
 def profile(request):
-    user_profile = get_user_profile(request.user)
-    return render(request, 'profile.html', {'user_profile': user_profile})
+    return render(request, 'profile.html')
 
 
 @login_required(login_url='login')
 def edit_profile(request):
-    user_profile = get_user_profile(request.user)
-
-    if request.method == 'POST':
-        request.user.first_name = request.POST.get('first_name', request.user.first_name)
-        request.user.last_name = request.POST.get('last_name', request.user.last_name)
-        request.user.email = request.POST.get('email', request.user.email)
-        request.user.save()
-
-        avatar = request.FILES.get('avatar')
-        if avatar:
-            user_profile.avatar = avatar
-
-        user_profile.phone = request.POST.get('phone', user_profile.phone)
-        user_profile.company = request.POST.get('company', user_profile.company)
-        user_profile.location = request.POST.get('location', user_profile.location)
-        user_profile.bio = request.POST.get('bio', user_profile.bio)
-        user_profile.save()
-
-        messages.success(request, 'Perfil actualizado correctamente.')
-        return redirect('profile')
-
-    return render(request, 'edit-profile.html', {'user_profile': user_profile})
+    return render(request, 'edit-profile.html')
 
 
 @login_required(login_url='login')
 def user_panel(request):
-    user_profile = get_user_profile(request.user)
-    return render(request, 'user-panel.html', {'user_profile': user_profile})
+    return render(request, 'user-panel.html')

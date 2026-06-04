@@ -1,0 +1,26 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="mb-4">{{ producto.nombre }}</h4>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <p><strong>Descripción:</strong> {{ producto.descripcion }}</p>
+          <p><strong>Precio:</strong> ${{ producto.precio }}</p>
+          <p><strong>Stock:</strong> {{ producto.stock }} unidades</p>
+          <p><strong>Categoría:</strong> {{ producto.categoria }}</p>
+          <p><strong>Fecha Creación:</strong> {{ producto.fecha_creacion|date:"d/m/Y H:i" }}</p>
+          <a href="{% url 'productos' %}" class="btn btn-secondary">Volver</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}

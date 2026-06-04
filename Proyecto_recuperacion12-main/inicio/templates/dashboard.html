@@ -1,0 +1,264 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h4>Dashboard Principal</h4>
+      </div>
+      <div class="card-body">
+        <h5>Bienvenido al Dashboard</h5>
+        <p>Aquí irá:</p>
+        <ul>
+          <li><strong>Estadísticas generales</strong> - Resumen de datos principales del sistema</li>
+          <li><strong>Gráficos</strong> - Visualización de datos y métricas</li>
+          <li><strong>Alertas</strong> - Notificaciones importantes</li>
+          <li><strong>Tabla de actividades</strong> - Registro de transacciones recientes</li>
+          <li><strong>Panel de usuarios</strong> - Información de usuarios activos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}
+
+<div class="clearfix"></div>
+	
+  <div class="content-wrapper">
+    <div class="container-fluid">
+
+  <!--Start Dashboard Analytics-->
+
+	<div class="card mt-3">
+    <div class="card-content">
+        <div class="row row-group m-0">
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                  <h5 class="text-white mb-0">2,547 <span class="float-right"><i class="fa fa-users"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                       <div class="progress-bar" style="width:75%"></div>
+                    </div>
+                  <p class="mb-0 text-white small-font">Active Users <span class="float-right">+8.5% <i class="zmdi zmdi-long-arrow-up"></i></span></p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                  <h5 class="text-white mb-0">$45,230 <span class="float-right"><i class="fa fa-dollar"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                       <div class="progress-bar" style="width:65%"></div>
+                    </div>
+                  <p class="mb-0 text-white small-font">Total Sales <span class="float-right">+3.7% <i class="zmdi zmdi-long-arrow-up"></i></span></p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                  <h5 class="text-white mb-0">1,823 <span class="float-right"><i class="fa fa-cube"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                       <div class="progress-bar" style="width:85%"></div>
+                    </div>
+                  <p class="mb-0 text-white small-font">Products <span class="float-right">+2.1% <i class="zmdi zmdi-long-arrow-up"></i></span></p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                  <h5 class="text-white mb-0">342 <span class="float-right"><i class="fa fa-bell"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                       <div class="progress-bar" style="width:45%"></div>
+                    </div>
+                  <p class="mb-0 text-white small-font">Notifications <span class="float-right">-1.3% <i class="zmdi zmdi-long-arrow-down"></i></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>  
+	  
+	<div class="row">
+     <div class="col-12 col-lg-8 col-xl-8">
+	    <div class="card">
+		 <div class="card-header">Performance Overview
+		   <div class="card-action">
+			 <div class="dropdown">
+			 <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+			  <i class="icon-options"></i>
+			 </a>
+				<div class="dropdown-menu dropdown-menu-right">
+				<a class="dropdown-item" href="javascript:void();">Last 7 Days</a>
+				<a class="dropdown-item" href="javascript:void();">Last 30 Days</a>
+				<a class="dropdown-item" href="javascript:void();">Last 90 Days</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="javascript:void();">Custom Range</a>
+			   </div>
+			  </div>
+		   </div>
+		 </div>
+		 <div class="card-body">
+		    <ul class="list-inline">
+			  <li class="list-inline-item"><i class="fa fa-circle mr-2 text-white"></i>Performance</li>
+			  <li class="list-inline-item"><i class="fa fa-circle mr-2 text-light"></i>Average</li>
+			</ul>
+			<div class="chart-container-1">
+			  <canvas id="chart1"></canvas>
+			</div>
+		 </div>
+		 
+		 <div class="row m-0 row-group text-center border-top border-light-3">
+		   <div class="col-12 col-lg-4">
+		     <div class="p-3">
+		       <h5 class="mb-0">98.5%</h5>
+			   <small class="mb-0">System Uptime <span> <i class="fa fa-arrow-up"></i> 0.25%</span></small>
+		     </div>
+		   </div>
+		   <div class="col-12 col-lg-4">
+		     <div class="p-3">
+		       <h5 class="mb-0">245ms</h5>
+			   <small class="mb-0">Avg Response Time <span> <i class="fa fa-arrow-down"></i> 5.30%</span></small>
+		     </div>
+		   </div>
+		   <div class="col-12 col-lg-4">
+		     <div class="p-3">
+		       <h5 class="mb-0">99.2%</h5>
+			   <small class="mb-0">Request Success Rate <span> <i class="fa fa-arrow-up"></i> 0.85%</span></small>
+		     </div>
+		   </div>
+		 </div>
+	    </div>
+     </div>
+     <div class="col-12 col-lg-4 col-xl-4">
+	    <div class="card">
+		 <div class="card-header">Recent Activity
+		   <div class="card-action">
+			 <div class="dropdown">
+			 <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+			  <i class="icon-options"></i>
+			 </a>
+				<div class="dropdown-menu dropdown-menu-right">
+				<a class="dropdown-item" href="javascript:void();">Today</a>
+				<a class="dropdown-item" href="javascript:void();">This Week</a>
+				<a class="dropdown-item" href="javascript:void();">This Month</a>
+			   </div>
+			  </div>
+		   </div>
+		 </div>
+		 <div class="card-body">
+		    <div class="row align-items-center mb-3">
+			  <div class="col-auto">
+				<div class="avatar avatar-xl">
+				  <span class="avatar-title bg-light-primary rounded-circle"><i class="fa fa-plus"></i></span>
+				</div>
+			  </div>
+			  <div class="col">
+				<h6 class="mb-0">New User Registration</h6>
+				<small>2 hours ago</small>
+			  </div>
+			</div>
+		    <div class="row align-items-center mb-3">
+			  <div class="col-auto">
+				<div class="avatar avatar-xl">
+				  <span class="avatar-title bg-light-success rounded-circle"><i class="fa fa-check"></i></span>
+				</div>
+			  </div>
+			  <div class="col">
+				<h6 class="mb-0">Order Completed</h6>
+				<small>4 hours ago</small>
+			  </div>
+			</div>
+		    <div class="row align-items-center mb-3">
+			  <div class="col-auto">
+				<div class="avatar avatar-xl">
+				  <span class="avatar-title bg-light-danger rounded-circle"><i class="fa fa-times"></i></span>
+				</div>
+			  </div>
+			  <div class="col">
+				<h6 class="mb-0">System Alert</h6>
+				<small>1 day ago</small>
+			  </div>
+			</div>
+		    <div class="row align-items-center">
+			  <div class="col-auto">
+				<div class="avatar avatar-xl">
+				  <span class="avatar-title bg-light-warning rounded-circle"><i class="fa fa-exclamation"></i></span>
+				</div>
+			  </div>
+			  <div class="col">
+				<h6 class="mb-0">Pending Review</h6>
+				<small>2 days ago</small>
+			  </div>
+			</div>
+		 </div>
+	    </div>
+     </div>
+	</div>
+
+	<div class="row">
+     <div class="col-12">
+	    <div class="card">
+		 <div class="card-header">Recent Transactions
+		   <div class="card-action">
+			 <div class="dropdown">
+			 <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+			  <i class="icon-options"></i>
+			 </a>
+				<div class="dropdown-menu dropdown-menu-right">
+				<a class="dropdown-item" href="javascript:void();">Export</a>
+				<a class="dropdown-item" href="javascript:void();">Print</a>
+				<a class="dropdown-item" href="javascript:void();">Download</a>
+			   </div>
+			  </div>
+		   </div>
+		 </div>
+		 <div class="card-body">
+		    <div class="table-responsive">
+			  <table class="table table-hover mb-0">
+				<thead>
+				  <tr>
+					<th>#</th>
+					<th>Customer</th>
+					<th>Status</th>
+					<th>Amount</th>
+					<th>Date</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  <tr>
+					<td>1001</td>
+					<td>John Smith</td>
+					<td><span class="badge badge-success">Completed</span></td>
+					<td>$1,250.00</td>
+					<td>Jun 01, 2024</td>
+				  </tr>
+				  <tr>
+					<td>1002</td>
+					<td>Mary Johnson</td>
+					<td><span class="badge badge-warning">Pending</span></td>
+					<td>$850.50</td>
+					<td>Jun 02, 2024</td>
+				  </tr>
+				  <tr>
+					<td>1003</td>
+					<td>Robert Brown</td>
+					<td><span class="badge badge-success">Completed</span></td>
+					<td>$2,100.00</td>
+					<td>Jun 02, 2024</td>
+				  </tr>
+				  <tr>
+					<td>1004</td>
+					<td>Patricia Davis</td>
+					<td><span class="badge badge-danger">Failed</span></td>
+					<td>$650.75</td>
+					<td>Jun 03, 2024</td>
+				  </tr>
+				</tbody>
+			  </table>
+		    </div>
+		 </div>
+	    </div>
+     </div>
+	</div>
+
+    </div>
+  </div>
+
+{% include 'footer.html' %}

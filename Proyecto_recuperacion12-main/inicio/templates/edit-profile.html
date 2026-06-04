@@ -1,0 +1,104 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h4>Editar Perfil</h4>
+      </div>
+      <div class="card-body">
+        {% if user.is_authenticated %}
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+              <div class="col-md-4 text-center">
+                {% if user_profile.avatar %}
+                  <img src="{{ user_profile.avatar.url }}" class="rounded-circle" style="width: 180px; height: 180px; object-fit: cover; margin-bottom: 20px;" alt="Avatar">
+                {% else %}
+                  <div class="rounded-circle" style="width: 180px; height: 180px; background-color: #667eea; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fa fa-user" style="font-size: 80px; color: white;"></i>
+                  </div>
+                {% endif %}
+                
+                <div class="form-group">
+                  <label for="avatar">Cambiar Avatar</label>
+                  <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                  <small class="form-text text-muted">Máximo 5MB. JPG, PNG</small>
+                </div>
+              </div>
+
+              <div class="col-md-8">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="first_name">Nombre *</label>
+                      <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="last_name">Apellido *</label>
+                      <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="phone">Teléfono</label>
+                      <input type="text" class="form-control" id="phone" name="phone" value="{{ user_profile.phone|default:'' }}" placeholder="+34 123 456 789">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="company">Empresa</label>
+                      <input type="text" class="form-control" id="company" name="company" value="{{ user_profile.company|default:'' }}" placeholder="Nombre de empresa">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="location">Ubicación</label>
+                  <input type="text" class="form-control" id="location" name="location" value="{{ user_profile.location|default:'' }}" placeholder="Ciudad, País">
+                </div>
+
+                <div class="form-group">
+                  <label for="bio">Biografía</label>
+                  <textarea class="form-control" id="bio" name="bio" rows="4" placeholder="Cuéntanos sobre ti...">{{ user_profile.bio|default:'' }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row">
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="fa fa-save"></i> Guardar Cambios
+                </button>
+                <a href="{% url 'user_panel' %}" class="btn btn-secondary btn-lg">
+                  <i class="fa fa-times"></i> Cancelar
+                </a>
+              </div>
+            </div>
+          </form>
+        {% else %}
+          <div class="alert alert-warning">
+            <p>Debes <a href="{% url 'login' %}">iniciar sesión</a> para editar tu perfil.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}
