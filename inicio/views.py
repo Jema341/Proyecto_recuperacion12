@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Producto, Cliente, Venta
+from .models import Producto, Cliente, Venta, Profile
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
@@ -1219,17 +1219,45 @@ def exportar_reporte_pdf(request):
     return response
 
 
+def get_user_profile(user):
+    profile, created = Profile.objects.get_or_create(user=user)
+    return profile
+
+
 # Perfil de Usuario
 @login_required(login_url='login')
 def profile(request):
-    return render(request, 'profile.html')
+    user_profile = get_user_profile(request.user)
+    return render(request, 'profile.html', {'user_profile': user_profile})
 
 
 @login_required(login_url='login')
 def edit_profile(request):
-    return render(request, 'edit-profile.html')
+    user_profile = get_user_profile(request.user)
+
+    if request.method == 'POST':
+        request.user.first_name = request.POST.get('first_name', request.user.first_name)
+        request.user.last_name = request.POST.get('last_name', request.user.last_name)
+        request.user.email = request.POST.get('email', request.user.email)
+        request.user.save()
+
+        avatar = request.FILES.get('avatar')
+        if avatar:
+            user_profile.avatar = avatar
+
+        user_profile.phone = request.POST.get('phone', user_profile.phone)
+        user_profile.company = request.POST.get('company', user_profile.company)
+        user_profile.location = request.POST.get('location', user_profile.location)
+        user_profile.bio = request.POST.get('bio', user_profile.bio)
+        user_profile.save()
+
+        messages.success(request, 'Perfil actualizado correctamente.')
+        return redirect('profile')
+
+    return render(request, 'edit-profile.html', {'user_profile': user_profile})
 
 
 @login_required(login_url='login')
 def user_panel(request):
-    return render(request, 'user-panel.html')
+    user_profile = get_user_profile(request.user)
+    return render(request, 'user-panel.html', {'user_profile': user_profile})
