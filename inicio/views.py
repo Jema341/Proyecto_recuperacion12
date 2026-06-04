@@ -4,4 +4,7 @@ from django.contrib.auth import authenticate, login as auth_login
 
 # Create your views here.
 def inicio(request):
-  return render(request, 'index.html')
+  return render(request, 'dashboard.html')
+
+def dashboard(request):
+  return render(request, 'dashboard.html')
