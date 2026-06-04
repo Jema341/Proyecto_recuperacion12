@@ -39,4 +39,5 @@ urlpatterns = [
 
     # Reportes
     path('reportes/', views.reportes, name='reportes'),
+    path('reportes/exportar-pdf/', views.exportar_reporte_pdf, name='exportar_reporte_pdf'),
 ]

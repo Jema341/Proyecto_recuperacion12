@@ -8,6 +8,12 @@ from .models import Producto, Cliente, Venta
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.units import inch
+from io import BytesIO
 
 
 # Vista de inicio
@@ -424,39 +430,258 @@ def editar_venta(request, id):
 
 # Reportes
 def reportes(request):
+    # Obtener fechas del formulario
+    fecha_inicio_str = request.GET.get('fecha_inicio', '')
+    fecha_fin_str = request.GET.get('fecha_fin', '')
+    
+    # Valores por defecto: últimos 30 días
+    if not fecha_fin_str:
+        fecha_fin = datetime.now()
+    else:
+        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+    
+    if not fecha_inicio_str:
+        fecha_inicio = fecha_fin - timedelta(days=30)
+    else:
+        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+    
+    # Filtrar ventas por rango de fechas
+    ventas_rango = Venta.objects.filter(
+        fecha_venta__gte=fecha_inicio,
+        fecha_venta__lte=fecha_fin,
+        estado='completada'
+    )
+    
     # Datos generales
     total_productos = Producto.objects.count()
     total_clientes = Cliente.objects.count()
-    total_ventas = Venta.objects.count()
-    ventas_completadas = Venta.objects.filter(estado='completada').count()
+    total_ventas = Venta.objects.filter(
+        fecha_venta__gte=fecha_inicio,
+        fecha_venta__lte=fecha_fin
+    ).count()
+    ventas_completadas = ventas_rango.count()
+    ingresos_totales = sum(v.total for v in ventas_rango)
     
-    # Datos para gráfico de ventas por mes (últimos 6 meses)
+    # Datos para gráfico de ventas por mes (en el rango de fechas)
     meses = []
     ventas_por_mes = []
     
-    for i in range(5, -1, -1):
-        fecha = datetime.now() - timedelta(days=30*i)
-        mes = fecha.strftime('%B %Y')
+    fecha_actual = fecha_inicio
+    while fecha_actual <= fecha_fin:
+        mes = fecha_actual.strftime('%b %Y')
         meses.append(mes)
         
         # Ventas del mes
         ventas_mes = Venta.objects.filter(
-            fecha_venta__year=fecha.year,
-            fecha_venta__month=fecha.month,
+            fecha_venta__year=fecha_actual.year,
+            fecha_venta__month=fecha_actual.month,
+            fecha_venta__gte=fecha_inicio,
+            fecha_venta__lte=fecha_fin,
             estado='completada'
         ).aggregate(total=Sum('total'))['total'] or 0
         ventas_por_mes.append(float(ventas_mes))
+        
+        # Avanzar un mes
+        if fecha_actual.month == 12:
+            fecha_actual = fecha_actual.replace(year=fecha_actual.year + 1, month=1)
+        else:
+            fecha_actual = fecha_actual.replace(month=fecha_actual.month + 1)
     
     context = {
         'total_productos': total_productos,
         'total_clientes': total_clientes,
         'total_ventas': total_ventas,
         'ventas_completadas': ventas_completadas,
+        'ingresos_totales': ingresos_totales,
         'meses': json.dumps(meses),
         'ventas_por_mes': json.dumps(ventas_por_mes),
+        'fecha_inicio': fecha_inicio.strftime('%Y-%m-%d'),
+        'fecha_fin': fecha_fin.strftime('%Y-%m-%d'),
     }
 
     return render(request, 'reportes.html', context)
+
+
+def exportar_reporte_pdf(request):
+    """Genera y descarga un reporte en PDF con filtro de fechas"""
+    
+    # Obtener fechas del formulario
+    fecha_inicio_str = request.GET.get('fecha_inicio', '')
+    fecha_fin_str = request.GET.get('fecha_fin', '')
+    
+    # Valores por defecto: últimos 30 días
+    if not fecha_fin_str:
+        fecha_fin = datetime.now()
+    else:
+        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+    
+    if not fecha_inicio_str:
+        fecha_inicio = fecha_fin - timedelta(days=30)
+    else:
+        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+    
+    # Recopilar datos con filtro de fechas
+    total_productos = Producto.objects.count()
+    total_clientes = Cliente.objects.count()
+    
+    total_ventas = Venta.objects.filter(
+        fecha_venta__gte=fecha_inicio,
+        fecha_venta__lte=fecha_fin
+    ).count()
+    
+    ventas_completadas = Venta.objects.filter(
+        fecha_venta__gte=fecha_inicio,
+        fecha_venta__lte=fecha_fin,
+        estado='completada'
+    ).count()
+    
+    ingresos_totales = sum(v.total for v in Venta.objects.filter(
+        fecha_venta__gte=fecha_inicio,
+        fecha_venta__lte=fecha_fin,
+        estado='completada'
+    ))
+    
+    # Crear respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte_ventas.pdf"'
+    
+    # Crear documento PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    # Contenido
+    elements = []
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor('#1f2937'),
+        spaceAfter=30,
+        alignment=1
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor('#374151'),
+        spaceAfter=12,
+        spaceBefore=12
+    )
+    
+    # Título
+    elements.append(Paragraph("REPORTE DE VENTAS", title_style))
+    elements.append(Paragraph(f"Período: {fecha_inicio.strftime('%d/%m/%Y')} al {fecha_fin.strftime('%d/%m/%Y')}", styles['Normal']))
+    elements.append(Paragraph(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", styles['Normal']))
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Resumen General
+    elements.append(Paragraph("RESUMEN GENERAL", heading_style))
+    
+    resumen_data = [
+        ['Métrica', 'Valor'],
+        ['Total Productos', str(total_productos)],
+        ['Total Clientes', str(total_clientes)],
+        ['Total Ventas', str(total_ventas)],
+        ['Ventas Completadas', str(ventas_completadas)],
+        ['Ingresos Totales', f'${ingresos_totales:.2f}'],
+    ]
+    
+    resumen_table = Table(resumen_data, colWidths=[3*inch, 2*inch])
+    resumen_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3b82f6')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    elements.append(resumen_table)
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Últimas Ventas en el período
+    elements.append(Paragraph("ÚLTIMAS 10 VENTAS COMPLETADAS EN EL PERÍODO", heading_style))
+    
+    ultimas_ventas = Venta.objects.filter(
+        fecha_venta__gte=fecha_inicio,
+        fecha_venta__lte=fecha_fin,
+        estado='completada'
+    ).order_by('-fecha_venta')[:10]
+    
+    if ultimas_ventas:
+        ventas_data = [['ID', 'Cliente', 'Producto', 'Cantidad', 'Total', 'Fecha']]
+        for venta in ultimas_ventas:
+            ventas_data.append([
+                str(venta.id),
+                venta.cliente.nombre[:15],
+                venta.producto.nombre[:15],
+                str(venta.cantidad),
+                f"${venta.total:.2f}",
+                venta.fecha_venta.strftime('%d/%m/%Y')
+            ])
+        
+        ventas_table = Table(ventas_data, colWidths=[0.6*inch, 1.2*inch, 1.2*inch, 0.8*inch, 0.8*inch, 1*inch])
+        ventas_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#10b981')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0fdf4')])
+        ]))
+        elements.append(ventas_table)
+    else:
+        elements.append(Paragraph("No hay ventas completadas en el período seleccionado", styles['Normal']))
+    
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Productos con Bajo Stock
+    elements.append(Paragraph("PRODUCTOS CON BAJO STOCK (< 10 unidades)", heading_style))
+    
+    bajo_stock = Producto.objects.filter(stock__lt=10).order_by('stock')[:10]
+    
+    if bajo_stock:
+        stock_data = [['Producto', 'Categoría', 'Stock', 'Precio']]
+        for producto in bajo_stock:
+            stock_data.append([
+                producto.nombre[:20],
+                producto.categoria[:15],
+                str(producto.stock),
+                f"${producto.precio:.2f}"
+            ])
+        
+        stock_table = Table(stock_data, colWidths=[2*inch, 1.5*inch, 1*inch, 1*inch])
+        stock_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ef4444')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fef2f2')])
+        ]))
+        elements.append(stock_table)
+    else:
+        elements.append(Paragraph("Todos los productos tienen stock suficiente", styles['Normal']))
+    
+    # Construir PDF
+    doc.build(elements)
+    
+    # Retornar PDF
+    buffer.seek(0)
+    response.write(buffer.getvalue())
+    buffer.close()
+    
+    return response
+
 
 
 # Perfil de Usuario
