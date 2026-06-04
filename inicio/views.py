@@ -323,14 +323,17 @@ def productos(request):
 
 
 def producto_detalle(request, id):
-    producto = Producto.objects.get(id=id)
+    producto = get_object_or_404(Producto, id=id)
     
-    # Obtener ventas del producto
     ventas_producto = Venta.objects.filter(producto=producto, estado='completada').order_by('-fecha_venta')
     
-    # Calcular estadísticas
-    total_unidades_vendidas = sum(v.cantidad for v in ventas_producto)
-    ingresos_totales = sum(v.total for v in ventas_producto)
+    # Calcular estadísticas usando agregados cuando sea posible
+    agregados = ventas_producto.aggregate(
+        total_unidades=Sum('cantidad'),
+        ingresos_totales=Sum('total')
+    )
+    total_unidades_vendidas = agregados['total_unidades'] or 0
+    ingresos_totales = agregados['ingresos_totales'] or 0
     precio_promedio = ingresos_totales / total_unidades_vendidas if total_unidades_vendidas > 0 else 0
     
     # Últimas 10 ventas
