@@ -277,6 +277,9 @@ hr {
 #wrapper{
 	width:100%;
 	position: relative;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 }
 
 #sidebar-wrapper {
@@ -321,8 +324,10 @@ hr {
 	-webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
   -o-transition: all 0.3s ease;
-  transition: all 0.3s ease; 
+  transition: all 0.3s ease;
+  flex: 1 0 auto;
   }
+
 
 /*----------------right-sidebar----------------*/
 
@@ -3319,16 +3324,18 @@ table.grid td {
   position: absolute;
   right: 0;
   left: 250px;
+  width: calc(100% - 250px);
   background-color: transparent;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
   -o-transition: all 0.3s ease;
-  transition: all 0.3s ease; 
+  transition: all 0.3s ease;
 }
 #wrapper.toggled .footer{
     position: absolute;
     left: 0px;
+    width: 100%;
 }
 .back-to-top {
   display: none;
@@ -3547,7 +3554,9 @@ table.grid td {
 
 .footer {
   position: absolute;
-  left: 0px;
+  bottom: 0px;
+  left: 250px;
+  width: calc(100% - 250px);
 }
 
 #wrapper.toggled #sidebar-wrapper {
