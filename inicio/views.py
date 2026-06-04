@@ -40,6 +40,7 @@ from io import BytesIO
 
 
 # Vista de inicio
+@login_required(login_url='login')
 def inicio(request):
     total_productos = Producto.objects.count()
     total_clientes = Cliente.objects.count()
@@ -59,6 +60,7 @@ def inicio(request):
     return render(request, 'index.html', context)
 
 
+@login_required(login_url='login')
 def dashboard(request):
     # Parámetros de fecha para filtros
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -204,18 +206,22 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
+@login_required(login_url='login')
 def ui_icons(request):
     return render(request, 'ui-icons.html')
 
 
+@login_required(login_url='login')
 def forms(request):
     return render(request, 'forms.html')
 
 
+@login_required(login_url='login')
 def tables(request):
     return render(request, 'tables.html')
 
 
+@login_required(login_url='login')
 def calendar(request):
     return render(request, 'calendar.html')
 
@@ -276,6 +282,7 @@ def registration(request):
 
 
 # Productos
+@login_required(login_url='login')
 def productos(request):
     productos = Producto.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -458,6 +465,7 @@ def eliminar_venta(request, id):
 
 
 # Clientes
+@login_required(login_url='login')
 def clientes(request):
     clientes = Cliente.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -504,6 +512,7 @@ def clientes(request):
     return render(request, 'clientes.html', context)
 
 
+@login_required(login_url='login')
 def cliente_detalle(request, id):
     cliente = get_object_or_404(Cliente, id=id)
     
@@ -543,6 +552,7 @@ def cliente_detalle(request, id):
     return render(request, 'cliente_detalle.html', context)
 
 
+@login_required(login_url='login')
 def editar_cliente(request, id):
     cliente = get_object_or_404(Cliente, id=id)
     
@@ -560,6 +570,7 @@ def editar_cliente(request, id):
 
 
 # Ventas
+@login_required(login_url='login')
 def ventas(request):
     ventas_list = Venta.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -609,6 +620,7 @@ def ventas(request):
     return render(request, 'ventas.html', context)
 
 
+@login_required(login_url='login')
 def editar_venta(request, id):
     venta = get_object_or_404(Venta, id=id)
     
@@ -626,6 +638,7 @@ def editar_venta(request, id):
     return render(request, 'editar_venta.html', {'venta': venta, 'estados_choices': estados_choices})
 
 
+@login_required(login_url='login')
 def descargar_recibo_venta(request, id):
     """Genera y descarga un recibo PDF de una venta"""
     
@@ -808,6 +821,7 @@ def descargar_recibo_venta(request, id):
     return response
 
 
+@login_required(login_url='login')
 def cambiar_estado_venta(request, id, estado):
     """Cambia rápidamente el estado de una venta"""
     venta = get_object_or_404(Venta, id=id)
@@ -828,6 +842,7 @@ def cambiar_estado_venta(request, id, estado):
 
 
 # Reportes
+@login_required(login_url='login')
 def reportes(request):
     # Parámetros de fecha
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -976,6 +991,7 @@ def reportes(request):
     return render(request, 'reportes.html', context)
 
 
+@login_required(login_url='login')
 def exportar_reporte_pdf(request):
     """Genera y descarga un reporte en PDF con filtro de fechas"""
     
@@ -1246,6 +1262,7 @@ def exportar_reporte_pdf(request):
 
 
 # Perfil de Usuario
+@login_required(login_url='login')
 @login_required(login_url='login')
 def profile(request):
     return render(request, 'profile.html')
