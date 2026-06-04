@@ -353,7 +353,7 @@ def producto_detalle(request, id):
 
 
 def editar_producto(request, id):
-    producto = Producto.objects.get(id=id)
+    producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
         producto.nombre = request.POST.get('nombre', producto.nombre)
@@ -402,7 +402,7 @@ def crear_producto(request):
 
 def eliminar_producto(request, id):
     """Elimina un producto con confirmación"""
-    producto = Producto.objects.get(id=id)
+    producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
         nombre_producto = producto.nombre
