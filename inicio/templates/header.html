@@ -87,7 +87,7 @@
         </a>
       </li>
       <li>
-        <a href="/admin/logout/">
+        <a href="{% url 'logout' %}">
           <i class="zmdi zmdi-sign-in text-danger"></i> <span>Cerrar sesión</span>
         </a>
       </li>
@@ -151,7 +151,7 @@
         <li class="dropdown-item"><a href="{% url 'user_panel' %}"><i class="icon-user-following mr-2"></i>Mi Panel</a></li>
         <li class="dropdown-item"><a href="{% url 'edit_profile' %}"><i class="icon-settings mr-2"></i>Editar Perfil</a></li>
         <li class="dropdown-divider"></li>
-        <li class="dropdown-item"><a href="/admin/logout/"><i class="icon-power mr-2"></i>Cerrar Sesión</a></li>
+        <li class="dropdown-item"><a href="{% url 'logout' %}"><i class="icon-power mr-2"></i>Cerrar Sesión</a></li>
         {% else %}
         <li class="dropdown-item"><a href="{% url 'login' %}"><i class="icon-login mr-2"></i>Iniciar Sesión</a></li>
         <li class="dropdown-item"><a href="{% url 'registration' %}"><i class="icon-user-add mr-2"></i>Registrarse</a></li>
