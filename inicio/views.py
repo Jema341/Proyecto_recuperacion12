@@ -420,7 +420,7 @@ def eliminar_producto(request, id):
 
 def eliminar_cliente(request, id):
     """Elimina un cliente con confirmación"""
-    cliente = Cliente.objects.get(id=id)
+    cliente = get_object_or_404(Cliente, id=id)
     
     if request.method == 'POST':
         nombre_cliente = cliente.nombre
@@ -505,7 +505,7 @@ def clientes(request):
 
 
 def cliente_detalle(request, id):
-    cliente = Cliente.objects.get(id=id)
+    cliente = get_object_or_404(Cliente, id=id)
     
     # Obtener ventas del cliente
     ventas_completadas = Venta.objects.filter(cliente=cliente, estado='completada')
@@ -544,7 +544,7 @@ def cliente_detalle(request, id):
 
 
 def editar_cliente(request, id):
-    cliente = Cliente.objects.get(id=id)
+    cliente = get_object_or_404(Cliente, id=id)
     
     if request.method == 'POST':
         cliente.nombre = request.POST.get('nombre', cliente.nombre)
