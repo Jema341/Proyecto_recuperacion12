@@ -133,7 +133,11 @@
     </li>
     <li class="nav-item">
       <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-        <span class="user-profile"><i class="fa fa-user-circle" style="font-size: 24px;"></i></span>
+        {% if user.is_authenticated and user_profile.avatar %}
+          <img src="{{ user_profile.avatar.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #667eea;" alt="Avatar">
+        {% else %}
+          <span class="user-profile"><i class="fa fa-user-circle" style="font-size: 24px;"></i></span>
+        {% endif %}
       </a>
       <ul class="dropdown-menu dropdown-menu-right">
         {% if user.is_authenticated %}
