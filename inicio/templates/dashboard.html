@@ -69,6 +69,49 @@
 </div>
 {% endif %}
 
+<!-- Clientes Nuevos -->
+{% if clientes_nuevos %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="card mt-3 border-left-info">
+      <div class="card-header bg-info">
+        <h5 class="text-white mb-0">
+          <i class="fa fa-user-plus"></i> Clientes Nuevos (Últimos 5)
+        </h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-sm table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Ciudad</th>
+              <th>Fecha Registro</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cliente in clientes_nuevos %}
+            <tr>
+              <td><strong>{{ cliente.nombre }}</strong></td>
+              <td>{{ cliente.email }}</td>
+              <td>{{ cliente.telefono }}</td>
+              <td>{{ cliente.ciudad }}</td>
+              <td>{{ cliente.fecha_registro|date:"d/m/Y H:i" }}</td>
+              <td>
+                <a href="{% url 'cliente_detalle' cliente.id %}" class="btn btn-sm btn-info">Ver</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="clearfix"></div>
 	
   <div class="content-wrapper">

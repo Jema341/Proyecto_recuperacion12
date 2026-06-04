@@ -34,8 +34,12 @@ def dashboard(request):
     # Productos con stock bajo (menor a 10 unidades)
     productos_stock_bajo = Producto.objects.filter(stock__lt=10).order_by('stock')
     
+    # Clientes nuevos (últimos 5 registrados)
+    clientes_nuevos = Cliente.objects.all().order_by('-fecha_registro')[:5]
+    
     context = {
         'productos_stock_bajo': productos_stock_bajo,
+        'clientes_nuevos': clientes_nuevos,
     }
     
     return render(request, 'dashboard.html', context)
