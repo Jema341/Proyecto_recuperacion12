@@ -19,38 +19,52 @@
     }
     .registration-card {
       width: 100%;
-      max-width: 500px;
-      padding: 40px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      max-width: 520px;
+      padding: 36px 44px;
+      background: linear-gradient(180deg,#ffffff 0%, #fff9f6 100%);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(22,28,45,0.12);
+      border: 1px solid rgba(255,159,67,0.08);
     }
-    /* Colores llamativos y mejoras de usabilidad para registro */
-    .registration-card h3 { color: #ff6b6b; font-weight: 700; letter-spacing: 0.3px; }
-    .registration-card label { color: #2b6bff; font-weight: 600; }
+    /* Estilos llamativos y mejoras de usabilidad para registro */
+    .registration-card h3 { font-weight: 800; font-size: 1.45rem; margin-bottom: 0.6rem; background: linear-gradient(90deg,#ff6b6b,#ff9f43); -webkit-background-clip: text; color: transparent; }
+    .registration-card label { color: #374785; font-weight: 600; }
     .registration-card a { color: #ff9f43; font-weight: 600; text-decoration: none; }
     .registration-card a:hover { color: #ff6b6b; text-decoration: underline; }
 
+    /* Badge decorativo superior */
+    .reg-badge { width:80px; height:80px; margin:0 auto 12px; border-radius:50%; background: linear-gradient(135deg,#ff9f43 0%,#ff6b6b 100%); display:flex; align-items:center; justify-content:center; box-shadow: 0 10px 30px rgba(255,105,135,0.12); }
+    .reg-badge svg { width:40px; height:40px; fill: #fff; }
+
     /* Inputs y focus states */
-    .registration-card .form-control { border: 1px solid #e6e9f0; transition: border-color .15s ease, box-shadow .15s ease; }
-    .registration-card .form-control:focus { border-color: #2b6bff; box-shadow: 0 0 0 0.2rem rgba(43,107,255,0.12); outline: none; }
+    .registration-card .form-control { border: 1px solid #eef2fb; transition: border-color .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s; padding: .75rem .85rem; border-radius: 8px; }
+    .registration-card .form-control:focus { border-color: #ff9f43; box-shadow: 0 6px 20px rgba(255,159,67,0.12); outline: none; }
     .registration-card ::placeholder { color: #9aa3c1; opacity: 1; }
 
-    /* Botón con degradado y hover sutil */
-    .registration-card .btn-primary { background: linear-gradient(90deg,#ff6b6b,#ff9f43); border: none; box-shadow: none; }
-    .registration-card .btn-primary:hover { filter: brightness(0.96); }
+    /* Botón con degradado animado */
+    .registration-card .btn-primary {
+      background: linear-gradient(90deg,#ff6b6b 0%,#ff9f43 50%,#ffb86b 100%);
+      background-size: 200% 100%;
+      border: none; color: #fff; font-weight: 700; padding: .7rem .9rem; border-radius: 10px;
+      transition: background-position .4s ease, transform .08s ease;
+    }
+    .registration-card .btn-primary:hover { background-position: 100% 0; transform: translateY(-2px); }
 
     /* Alert style ligero */
     .registration-card .alert { border-left: 4px solid #ff6b6b; }
 
     @media (max-width: 576px) {
-      .registration-card { padding: 24px; }
+      .registration-card { padding: 20px; }
+      .reg-badge { width:64px; height:64px; }
     }
   </style>
 </head>
 <body class="bg-theme">
   <div class="registration-container">
     <div class="registration-card">
+      <div class="reg-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
       <h3 class="text-center mb-4">Crear Cuenta</h3>
       {% if messages %}
         <div class="alert alert-danger" role="alert">
