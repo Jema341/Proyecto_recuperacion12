@@ -1,6 +1,4 @@
-from django.contrib import admin
-from django.urls import include, path
-
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -9,10 +7,21 @@ urlpatterns = [
     path('forms/', views.forms, name='forms'),
     path('tables/', views.tables, name='tables'),
     path('calendar/', views.calendar, name='calendar'),
-    path('profile/', views.profile, name='profile'),
+
     path('login/', views.login_view, name='login'),
     path('registration/', views.registration, name='registration'),
-    path('user-panel/', views.user_panel, name='user_panel'),
-    path('edit-profile/', views.edit_profile, name='edit_profile'),
-    
+
+    # Productos
+    path('productos/', views.productos, name='productos'),
+    path('productos/<int:id>/', views.producto_detalle, name='producto_detalle'),
+
+    # Clientes
+    path('clientes/', views.clientes, name='clientes'),
+    path('clientes/<int:id>/', views.cliente_detalle, name='cliente_detalle'),
+
+    # Ventas
+    path('ventas/', views.ventas, name='ventas'),
+
+    # Reportes
+    path('reportes/', views.reportes, name='reportes'),
 ]
