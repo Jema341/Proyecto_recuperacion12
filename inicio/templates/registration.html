@@ -38,23 +38,44 @@
 
     /* Badge decorativo superior */
     .reg-badge { width:80px; height:80px; margin:0 auto 12px; border-radius:50%; background: linear-gradient(135deg,#ff9f43 0%,#ff6b6b 100%); display:flex; align-items:center; justify-content:center; box-shadow: 0 10px 30px rgba(255,105,135,0.12); }
-    .reg-badge svg { width:40px; height:40px; fill: #fff; }
+    .reg-badge svg { width:40px; height:40px; fill: #ffffff; }
 
     /* Inputs y focus states */
-    .registration-card .form-control {
-      border: 1.8px solid #c1c9e6; /* borde más visible */
-      background: #ffffff; /* asegurar contraste con el fondo */
+    .registration-card input.form-control,
+    .registration-card textarea.form-control,
+    .registration-card select.form-control {
+      border: 1.8px solid #c1c9e6; 
+      background: #ffffff; 
+      color: #111 !important; 
+      caret-color: #ff6b6b !important; 
       transition: border-color .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s;
       padding: .75rem .85rem;
       border-radius: 8px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+      box-shadow: inset 0 1px 0 rgba(53, 41, 41, 0.6);
     }
-    .registration-card .form-control:focus {
+    .registration-card input.form-control:focus,
+    .registration-card textarea.form-control:focus,
+    .registration-card select.form-control:focus {
       border-color: #ff9f43;
       box-shadow: 0 6px 20px rgba(255,159,67,0.12), 0 0 0 0.12rem rgba(255,159,67,0.06);
       outline: none;
+      color: #111 !important;
     }
-    .registration-card ::placeholder { color: #9aa3c1; opacity: 1; }
+    .registration-card input.form-control::placeholder,
+    .registration-card textarea.form-control::placeholder,
+    .registration-card select.form-control::placeholder,
+    .registration-card input.form-control:-ms-input-placeholder,
+    .registration-card textarea.form-control:-ms-input-placeholder,
+    .registration-card input.form-control::-ms-input-placeholder,
+    .registration-card textarea.form-control::-ms-input-placeholder,
+    .registration-card input.form-control::-webkit-input-placeholder,
+    .registration-card textarea.form-control::-webkit-input-placeholder {
+      color: #9aa3c1 !important;
+      opacity: 1;
+    }
+
+    /* Asegurar color en select/textarea si se agregan */
+    .registration-card select, .registration-card textarea { color: #111 !important; }
 
     /* Botón con degradado animado */
     .registration-card .btn-primary {
