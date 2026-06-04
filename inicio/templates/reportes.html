@@ -1,0 +1,59 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="mb-4">Reportes</h4>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ total_productos }}</h5>
+              <p class="mb-0 text-white small">Productos Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ total_clientes }}</h5>
+              <p class="mb-0 text-white small">Clientes Registrados</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ total_ventas }}</h5>
+              <p class="mb-0 text-white small">Ventas Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ ventas_completadas }}</h5>
+              <p class="mb-0 text-white small">Ventas Completadas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">Resumen de Actividad</h6>
+        </div>
+        <div class="card-body">
+          <p>Sistema de reportes configurado. Los datos se actualizan automáticamente según la actividad del sistema.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}
