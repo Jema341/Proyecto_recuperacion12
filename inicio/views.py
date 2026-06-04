@@ -37,13 +37,51 @@ def inicio(request):
 
 
 def dashboard(request):
+    # Parámetros de fecha para filtros
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    
+    # Convertir strings a datetime
+    if fecha_inicio:
+        try:
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        except:
+            fecha_inicio_dt = None
+    else:
+        fecha_inicio_dt = None
+    
+    if fecha_fin:
+        try:
+            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
+        except:
+            fecha_fin_dt = None
+    else:
+        fecha_fin_dt = None
+    
+    # Base de ventas filtrada por rango de fechas
+    if fecha_inicio_dt and fecha_fin_dt:
+        ventas_filtro = Venta.objects.filter(fecha_venta__gte=fecha_inicio_dt, fecha_venta__lte=fecha_fin_dt, estado='completada')
+    else:
+        ventas_filtro = Venta.objects.filter(estado='completada')
+    
     # Productos con stock bajo (menor a 10 unidades)
     productos_stock_bajo = Producto.objects.filter(stock__lt=10).order_by('stock')
     
     # Clientes nuevos (últimos 5 registrados)
     clientes_nuevos = Cliente.objects.all().order_by('-fecha_registro')[:5]
     
-    # Top 5 Productos más vendidos
+    # Productos más vendidos esta semana
+    una_semana_atras = datetime.now() - timedelta(days=7)
+    productos_esta_semana = Venta.objects.filter(
+        estado='completada',
+        fecha_venta__gte=una_semana_atras
+    ).values('producto__nombre').annotate(
+        cantidad=Sum('cantidad'),
+        ingresos=Sum('total')
+    ).order_by('-cantidad')[:5]
+    
+    # Top 5 Productos más vendidos (general)
     top_productos = Venta.objects.filter(estado='completada').values('producto').annotate(
         total_vendidos=Count('id'),
         monto_total=Sum('total')
@@ -64,14 +102,14 @@ def dashboard(request):
     
     # INDICADORES KPI
     total_ventas = Venta.objects.count()
-    ventas_completadas = Venta.objects.filter(estado='completada').count()
+    ventas_completadas = ventas_filtro.count()
     ventas_pendientes = Venta.objects.filter(estado='pendiente').count()
     
     # Tasa de conversión
     tasa_conversion = (ventas_completadas / total_ventas * 100) if total_ventas > 0 else 0
     
     # Ingresos totales
-    ingresos_totales = Venta.objects.filter(estado='completada').aggregate(total=Sum('total'))['total'] or 0
+    ingresos_totales = ventas_filtro.aggregate(total=Sum('total'))['total'] or 0
     
     # Promedio de venta
     promedio_venta = (ingresos_totales / ventas_completadas) if ventas_completadas > 0 else 0
@@ -98,10 +136,31 @@ def dashboard(request):
     # Clientes activos (que han hecho compras)
     clientes_activos = Cliente.objects.filter(venta__estado='completada').distinct().count()
     
+    # Datos para gráfico de últimos 6 meses
+    meses = []
+    ingresos_por_mes = []
+    for i in range(6, -1, -1):
+        fecha = hoy - timedelta(days=30*i)
+        mes_nombre = fecha.strftime('%B')[:3]
+        meses.append(mes_nombre)
+        
+        ingresos = Venta.objects.filter(
+            estado='completada',
+            fecha_venta__year=fecha.year,
+            fecha_venta__month=fecha.month
+        ).aggregate(total=Sum('total'))['total'] or 0
+        
+        ingresos_por_mes.append(float(ingresos))
+    
+    # Convertir a JSON para el template
+    meses_json = json.dumps(meses)
+    ingresos_json = json.dumps(ingresos_por_mes)
+    
     context = {
         'productos_stock_bajo': productos_stock_bajo,
         'clientes_nuevos': clientes_nuevos,
         'top_productos': top_productos_detalle,
+        'productos_esta_semana': productos_esta_semana,
         # KPIs
         'tasa_conversion': round(tasa_conversion, 2),
         'ingresos_totales': round(ingresos_totales, 2),
@@ -111,6 +170,12 @@ def dashboard(request):
         'clientes_activos': clientes_activos,
         'ventas_pendientes': ventas_pendientes,
         'total_productos': Producto.objects.count(),
+        # Gráfico
+        'meses': meses_json,
+        'ingresos_por_mes': ingresos_json,
+        # Filtros
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
     }
     
     return render(request, 'dashboard.html', context)
