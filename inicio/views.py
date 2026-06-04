@@ -92,3 +92,19 @@ def reportes(request):
     }
 
     return render(request, 'reportes.html', context)
+
+
+# Perfil de Usuario
+@login_required(login_url='login')
+def profile(request):
+    return render(request, 'profile.html')
+
+
+@login_required(login_url='login')
+def edit_profile(request):
+    return render(request, 'edit-profile.html')
+
+
+@login_required(login_url='login')
+def user_panel(request):
+    return render(request, 'user-panel.html')

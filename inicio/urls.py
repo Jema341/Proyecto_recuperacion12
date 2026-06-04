@@ -2,15 +2,24 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
+    # Dashboard e Inicio
+    path('', views.inicio, name='inicio'),
+    path('dashboard/', views.dashboard, name='dashboard'),
 
+    # UI y vistas adicionales
     path('ui-icons/', views.ui_icons, name='ui_icons'),
     path('forms/', views.forms, name='forms'),
     path('tables/', views.tables, name='tables'),
     path('calendar/', views.calendar, name='calendar'),
 
+    # Autenticación
     path('login/', views.login_view, name='login'),
     path('registration/', views.registration, name='registration'),
+
+    # Perfil de usuario
+    path('profile/', views.profile, name='profile'),
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
+    path('user-panel/', views.user_panel, name='user_panel'),
 
     # Productos
     path('productos/', views.productos, name='productos'),
