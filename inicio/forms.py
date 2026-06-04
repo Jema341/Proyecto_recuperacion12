@@ -62,6 +62,20 @@ class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
         fields = ['cliente', 'producto', 'cantidad', 'precio_unitario', 'estado', 'notas']
+        labels = {
+            'cliente': 'Cliente',
+            'producto': 'Producto',
+            'cantidad': 'Cantidad',
+            'precio_unitario': 'Precio unitario',
+            'estado': 'Estado de la venta',
+            'notas': 'Notas',
+        }
+        help_texts = {
+            'cantidad': 'Cantidad de unidades vendidas. Debe ser mayor que cero.',
+            'precio_unitario': 'Precio por unidad del producto.',
+            'estado': 'Selecciona el estado actual de la venta.',
+            'notas': 'Puedes registrar comentarios o indicaciones adicionales.',
+        }
         widgets = {
             'cliente': forms.Select(attrs={'class': 'form-control'}),
             'producto': forms.Select(attrs={'class': 'form-control'}),
