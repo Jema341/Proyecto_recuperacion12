@@ -605,17 +605,17 @@ def editar_venta(request, id):
     venta = get_object_or_404(Venta, id=id)
     
     if request.method == 'POST':
-        venta.cantidad = request.POST.get('cantidad', venta.cantidad)
-        venta.precio_unitario = request.POST.get('precio_unitario', venta.precio_unitario)
-        venta.total = float(venta.cantidad) * float(venta.precio_unitario)
-        venta.estado = request.POST.get('estado', venta.estado)
-        venta.save()
-        messages.success(request, 'Venta actualizada correctamente')
-        return redirect('ventas')
+        form = VentaForm(request.POST, instance=venta)
+        if form.is_valid():
+            venta = form.save(commit=False)
+            venta.total = float(venta.cantidad) * float(venta.precio_unitario)
+            venta.save()
+            messages.success(request, 'Venta actualizada correctamente')
+            return redirect('ventas')
+    else:
+        form = VentaForm(instance=venta)
     
-    estados_choices = [('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')]
-    
-    return render(request, 'editar_venta.html', {'venta': venta, 'estados_choices': estados_choices})
+    return render(request, 'editar_venta.html', {'form': form, 'venta': venta})
 
 
 @login_required(login_url='login')
