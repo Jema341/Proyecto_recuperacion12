@@ -22,7 +22,7 @@
               <input type="text" class="form-control" name="busqueda" placeholder="Nombre, email o teléfono..." value="{{ busqueda }}">
             </div>
             <div class="col-md-2">
-              <label class="form-label">Ciudad</label>
+              <label class="form-label">PAIS</label>
               <select class="form-control" name="ciudad">
                 <option value="">Todas</option>
                 {% for cid in ciudades %}
@@ -31,7 +31,7 @@
               </select>
             </div>
             <div class="col-md-2">
-              <label class="form-label">Registrado desde</label>
+              <label class="form-label">REGISTRADO</label>
               <input type="date" class="form-control" name="fecha_desde" value="{{ fecha_desde }}">
             </div>
             <div class="col-md-5 d-flex gap-2 align-items-end">

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producto, Cliente, Venta
+from .models import Producto, Cliente, Venta, Profile
 
 
 @admin.register(Producto)
@@ -14,6 +14,13 @@ class ClienteAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'email', 'telefono', 'ciudad', 'fecha_registro')
     search_fields = ('nombre', 'email')
     list_filter = ('ciudad', 'fecha_registro')
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone', 'company', 'location')
+    search_fields = ('user__username', 'phone', 'company')
+    readonly_fields = ('user',)
 
 
 @admin.register(Venta)
