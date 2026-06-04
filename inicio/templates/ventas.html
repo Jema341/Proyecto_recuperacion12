@@ -55,6 +55,7 @@
                 <th>Total</th>
                 <th>Estado</th>
                 <th>Fecha</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -71,6 +72,10 @@
                   </span>
                 </td>
                 <td>{{ venta.fecha_venta|date:"d/m/Y" }}</td>
+                <td>
+                  <a href="{% url 'editar_venta' venta.id %}" class="btn btn-sm btn-warning">Editar</a>
+                  <a href="#" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">Cancelar</a>
+                </td>
               </tr>
               {% empty %}
               <tr>

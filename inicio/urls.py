@@ -25,13 +25,16 @@ urlpatterns = [
     # Productos
     path('productos/', views.productos, name='productos'),
     path('productos/<int:id>/', views.producto_detalle, name='producto_detalle'),
+    path('productos/<int:id>/editar/', views.editar_producto, name='editar_producto'),
 
     # Clientes
     path('clientes/', views.clientes, name='clientes'),
     path('clientes/<int:id>/', views.cliente_detalle, name='cliente_detalle'),
+    path('clientes/<int:id>/editar/', views.editar_cliente, name='editar_cliente'),
 
     # Ventas
     path('ventas/', views.ventas, name='ventas'),
+    path('ventas/<int:id>/editar/', views.editar_venta, name='editar_venta'),
 
     # Reportes
     path('reportes/', views.reportes, name='reportes'),

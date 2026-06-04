@@ -233,6 +233,22 @@ def producto_detalle(request, id):
     return render(request, 'producto_detalle.html', {'producto': producto})
 
 
+def editar_producto(request, id):
+    producto = Producto.objects.get(id=id)
+    
+    if request.method == 'POST':
+        producto.nombre = request.POST.get('nombre', producto.nombre)
+        producto.descripcion = request.POST.get('descripcion', producto.descripcion)
+        producto.precio = request.POST.get('precio', producto.precio)
+        producto.stock = request.POST.get('stock', producto.stock)
+        producto.categoria = request.POST.get('categoria', producto.categoria)
+        producto.save()
+        messages.success(request, 'Producto actualizado correctamente')
+        return redirect('productos')
+    
+    return render(request, 'editar_producto.html', {'producto': producto})
+
+
 # Clientes
 def clientes(request):
     clientes = Cliente.objects.all()
@@ -267,6 +283,22 @@ def clientes(request):
 def cliente_detalle(request, id):
     cliente = Cliente.objects.get(id=id)
     return render(request, 'cliente_detalle.html', {'cliente': cliente})
+
+
+def editar_cliente(request, id):
+    cliente = Cliente.objects.get(id=id)
+    
+    if request.method == 'POST':
+        cliente.nombre = request.POST.get('nombre', cliente.nombre)
+        cliente.email = request.POST.get('email', cliente.email)
+        cliente.telefono = request.POST.get('telefono', cliente.telefono)
+        cliente.direccion = request.POST.get('direccion', cliente.direccion)
+        cliente.ciudad = request.POST.get('ciudad', cliente.ciudad)
+        cliente.save()
+        messages.success(request, 'Cliente actualizado correctamente')
+        return redirect('clientes')
+    
+    return render(request, 'editar_cliente.html', {'cliente': cliente})
 
 
 # Ventas
@@ -317,6 +349,23 @@ def ventas(request):
     }
     
     return render(request, 'ventas.html', context)
+
+
+def editar_venta(request, id):
+    venta = Venta.objects.get(id=id)
+    
+    if request.method == 'POST':
+        venta.cantidad = request.POST.get('cantidad', venta.cantidad)
+        venta.precio_unitario = request.POST.get('precio_unitario', venta.precio_unitario)
+        venta.total = float(venta.cantidad) * float(venta.precio_unitario)
+        venta.estado = request.POST.get('estado', venta.estado)
+        venta.save()
+        messages.success(request, 'Venta actualizada correctamente')
+        return redirect('ventas')
+    
+    estados_choices = [('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')]
+    
+    return render(request, 'editar_venta.html', {'venta': venta, 'estados_choices': estados_choices})
 
 
 # Reportes
