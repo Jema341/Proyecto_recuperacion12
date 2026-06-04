@@ -29,6 +29,7 @@ class Profile(models.Model):
     phone = models.CharField(max_length=30, blank=True)
     company = models.CharField(max_length=150, blank=True)
     location = models.CharField(max_length=150, blank=True)
+    direccion = models.CharField(max_length=255, blank=True)
     bio = models.TextField(blank=True)
 
     def __str__(self):
