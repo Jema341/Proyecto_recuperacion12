@@ -17,6 +17,7 @@ from io import BytesIO
 
 
 # Vista de inicio
+@login_required
 def inicio(request):
     total_productos = Producto.objects.count()
     total_clientes = Cliente.objects.count()
@@ -36,6 +37,7 @@ def inicio(request):
     return render(request, 'index.html', context)
 
 
+@login_required
 def dashboard(request):
     # Parámetros de fecha para filtros
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -181,18 +183,22 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
+@login_required
 def ui_icons(request):
     return render(request, 'ui-icons.html')
 
 
+@login_required
 def forms(request):
     return render(request, 'forms.html')
 
 
+@login_required
 def tables(request):
     return render(request, 'tables.html')
 
 
+@login_required
 def calendar(request):
     return render(request, 'calendar.html')
 
@@ -212,6 +218,7 @@ def login_view(request):
     return render(request, 'login.html')
 
 
+@login_required
 def logout_view(request):
     from django.contrib.auth import logout
     logout(request)
@@ -253,6 +260,7 @@ def registration(request):
 
 
 # Productos
+@login_required
 def productos(request):
     productos = Producto.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -299,6 +307,7 @@ def productos(request):
     return render(request, 'productos.html', context)
 
 
+@login_required
 def producto_detalle(request, id):
     producto = Producto.objects.get(id=id)
     
@@ -326,6 +335,7 @@ def producto_detalle(request, id):
 
 
 
+@login_required
 def editar_producto(request, id):
     producto = Producto.objects.get(id=id)
     
@@ -347,6 +357,7 @@ def editar_producto(request, id):
     return render(request, 'editar_producto.html', {'producto': producto})
 
 
+@login_required
 def crear_producto(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -374,6 +385,7 @@ def crear_producto(request):
     return render(request, 'crear_producto.html')
 
 
+@login_required
 def eliminar_producto(request, id):
     """Elimina un producto con confirmación"""
     producto = Producto.objects.get(id=id)
@@ -392,6 +404,7 @@ def eliminar_producto(request, id):
     })
 
 
+@login_required
 def eliminar_cliente(request, id):
     """Elimina un cliente con confirmación"""
     cliente = Cliente.objects.get(id=id)
@@ -413,6 +426,7 @@ def eliminar_cliente(request, id):
     })
 
 
+@login_required
 def eliminar_venta(request, id):
     """Elimina una venta con confirmación"""
     venta = Venta.objects.get(id=id)
@@ -432,6 +446,7 @@ def eliminar_venta(request, id):
 
 
 # Clientes
+@login_required
 def clientes(request):
     clientes = Cliente.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -478,6 +493,7 @@ def clientes(request):
     return render(request, 'clientes.html', context)
 
 
+@login_required
 def cliente_detalle(request, id):
     cliente = Cliente.objects.get(id=id)
     
@@ -517,6 +533,7 @@ def cliente_detalle(request, id):
     return render(request, 'cliente_detalle.html', context)
 
 
+@login_required
 def editar_cliente(request, id):
     cliente = Cliente.objects.get(id=id)
     
@@ -534,6 +551,7 @@ def editar_cliente(request, id):
 
 
 # Ventas
+@login_required
 def ventas(request):
     ventas_list = Venta.objects.all()
     busqueda = request.GET.get('busqueda', '')
@@ -583,6 +601,7 @@ def ventas(request):
     return render(request, 'ventas.html', context)
 
 
+@login_required
 def editar_venta(request, id):
     venta = Venta.objects.get(id=id)
     
@@ -600,6 +619,7 @@ def editar_venta(request, id):
     return render(request, 'editar_venta.html', {'venta': venta, 'estados_choices': estados_choices})
 
 
+@login_required
 def descargar_recibo_venta(request, id):
     """Genera y descarga un recibo PDF de una venta"""
     
@@ -782,6 +802,7 @@ def descargar_recibo_venta(request, id):
     return response
 
 
+@login_required
 def cambiar_estado_venta(request, id, estado):
     """Cambia rápidamente el estado de una venta"""
     venta = Venta.objects.get(id=id)
@@ -802,6 +823,7 @@ def cambiar_estado_venta(request, id, estado):
 
 
 # Reportes
+@login_required
 def reportes(request):
     # Parámetros de fecha
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -950,6 +972,7 @@ def reportes(request):
     return render(request, 'reportes.html', context)
 
 
+@login_required
 def exportar_reporte_pdf(request):
     """Genera y descarga un reporte en PDF con filtro de fechas"""
     
