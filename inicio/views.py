@@ -254,6 +254,7 @@ def registration(request):
             last_name=last_name
         )
         auth_login(request, user)
+        messages.success(request, 'Registro completado correctamente')
         return redirect('inicio')
     
     return render(request, 'registration.html')
