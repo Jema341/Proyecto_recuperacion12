@@ -12,6 +12,11 @@
 
       <div class="card">
         <div class="card-body">
+          {% if producto.imagen %}
+          <div class="mb-4">
+            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="max-width: 300px; border-radius: 4px;">
+          </div>
+          {% endif %}
           <p><strong>Descripción:</strong> {{ producto.descripcion }}</p>
           <p><strong>Precio:</strong> ${{ producto.precio }}</p>
           <p><strong>Stock:</strong> {{ producto.stock }} unidades</p>

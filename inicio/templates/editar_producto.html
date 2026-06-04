@@ -15,7 +15,7 @@
           <h6 class="card-title">Formulario de Edición</h6>
         </div>
         <div class="card-body">
-          <form method="POST">
+          <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             
             <div class="form-group mb-3">
@@ -46,6 +46,17 @@
             <div class="form-group mb-3">
               <label for="categoria">Categoría</label>
               <input type="text" class="form-control" id="categoria" name="categoria" value="{{ producto.categoria }}">
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="imagen">Imagen del Producto</label>
+              {% if producto.imagen %}
+                <div class="mb-2">
+                  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="max-width: 200px; border-radius: 4px;">
+                </div>
+              {% endif %}
+              <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+              <small class="form-text text-muted">Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
             </div>
 
             <div class="form-group">

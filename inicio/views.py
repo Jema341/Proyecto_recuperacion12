@@ -242,6 +242,11 @@ def editar_producto(request, id):
         producto.precio = request.POST.get('precio', producto.precio)
         producto.stock = request.POST.get('stock', producto.stock)
         producto.categoria = request.POST.get('categoria', producto.categoria)
+        
+        # Manejo de imagen
+        if 'imagen' in request.FILES:
+            producto.imagen = request.FILES['imagen']
+        
         producto.save()
         messages.success(request, 'Producto actualizado correctamente')
         return redirect('productos')

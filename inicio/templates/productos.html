@@ -46,6 +46,7 @@
           <table class="table table-hover table-borderless">
             <thead>
               <tr>
+                <th>Imagen</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th>Precio</th>
@@ -56,6 +57,15 @@
             <tbody>
               {% for producto in productos %}
               <tr>
+                <td>
+                  {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                  {% else %}
+                    <div style="width: 50px; height: 50px; background-color: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                      <small>Sin imagen</small>
+                    </div>
+                  {% endif %}
+                </td>
                 <td>{{ producto.nombre }}</td>
                 <td>{{ producto.categoria }}</td>
                 <td>${{ producto.precio }}</td>
