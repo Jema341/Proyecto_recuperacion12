@@ -23,7 +23,51 @@
   </div>
 </div>
 
-{% include 'footer.html' %}
+<!-- Alertas de Stock Bajo -->
+{% if productos_stock_bajo %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="card mt-3 border-left-warning">
+      <div class="card-header bg-warning">
+        <h5 class="text-white mb-0">
+          <i class="fa fa-exclamation-triangle"></i> Alerta de Stock Bajo
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning" role="alert">
+          <strong>⚠️ Atención:</strong> Los siguientes productos tienen stock bajo (menos de 10 unidades):
+        </div>
+        <table class="table table-sm table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Producto</th>
+              <th>Stock Actual</th>
+              <th>Categoría</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos_stock_bajo %}
+            <tr>
+              <td><strong>{{ producto.nombre }}</strong></td>
+              <td>
+                <span class="badge {% if producto.stock == 0 %}badge-danger{% elif producto.stock < 5 %}badge-warning{% else %}badge-info{% endif %}">
+                  {{ producto.stock }} unidades
+                </span>
+              </td>
+              <td>{{ producto.categoria }}</td>
+              <td>
+                <a href="{% url 'producto_detalle' producto.id %}" class="btn btn-sm btn-primary">Ver</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <div class="clearfix"></div>
 	

@@ -31,7 +31,14 @@ def inicio(request):
 
 
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    # Productos con stock bajo (menor a 10 unidades)
+    productos_stock_bajo = Producto.objects.filter(stock__lt=10).order_by('stock')
+    
+    context = {
+        'productos_stock_bajo': productos_stock_bajo,
+    }
+    
+    return render(request, 'dashboard.html', context)
 
 
 def ui_icons(request):
