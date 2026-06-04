@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Producto, Cliente, Venta
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from datetime import datetime, timedelta
 import json
 
@@ -37,9 +37,29 @@ def dashboard(request):
     # Clientes nuevos (últimos 5 registrados)
     clientes_nuevos = Cliente.objects.all().order_by('-fecha_registro')[:5]
     
+    # Top 5 Productos más vendidos
+    top_productos = Venta.objects.filter(estado='completada').values('producto').annotate(
+        total_vendidos=Count('id'),
+        monto_total=Sum('total')
+    ).order_by('-total_vendidos')[:5]
+    
+    # Obtener detalles de los productos
+    top_productos_detalle = []
+    for venta in top_productos:
+        try:
+            producto = Producto.objects.get(id=venta['producto'])
+            top_productos_detalle.append({
+                'producto': producto,
+                'cantidad_ventas': venta['total_vendidos'],
+                'monto_total': venta['monto_total']
+            })
+        except:
+            pass
+    
     context = {
         'productos_stock_bajo': productos_stock_bajo,
         'clientes_nuevos': clientes_nuevos,
+        'top_productos': top_productos_detalle,
     }
     
     return render(request, 'dashboard.html', context)

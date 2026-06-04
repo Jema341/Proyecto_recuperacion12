@@ -112,6 +112,51 @@
 </div>
 {% endif %}
 
+<!-- Top Productos Más Vendidos -->
+{% if top_productos %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="card mt-3 border-left-success">
+      <div class="card-header bg-success">
+        <h5 class="text-white mb-0">
+          <i class="fa fa-star"></i> Top 5 Productos Más Vendidos
+        </h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-sm table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Cantidad de Ventas</th>
+              <th>Monto Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in top_productos %}
+            <tr>
+              <td><strong>#{{ forloop.counter }}</strong></td>
+              <td><strong>{{ item.producto.nombre }}</strong></td>
+              <td>{{ item.producto.categoria }}</td>
+              <td>
+                <span class="badge badge-success">{{ item.cantidad_ventas }} ventas</span>
+              </td>
+              <td><strong>${{ item.monto_total }}</strong></td>
+              <td>
+                <a href="{% url 'producto_detalle' item.producto.id %}" class="btn btn-sm btn-success">Ver</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="clearfix"></div>
 	
   <div class="content-wrapper">
