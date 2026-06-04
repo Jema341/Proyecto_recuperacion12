@@ -1,0 +1,72 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h4>Tablas</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Juan Pérez</td>
+                <td>juan@example.com</td>
+                <td><span class="badge badge-success">Activo</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-danger">Eliminar</button>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>María García</td>
+                <td>maria@example.com</td>
+                <td><span class="badge badge-success">Activo</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-danger">Eliminar</button>
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Carlos López</td>
+                <td>carlos@example.com</td>
+                <td><span class="badge badge-warning">Inactivo</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-danger">Eliminar</button>
+                </td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Ana Rodríguez</td>
+                <td>ana@example.com</td>
+                <td><span class="badge badge-success">Activo</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-danger">Eliminar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}
