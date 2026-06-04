@@ -68,22 +68,8 @@ def dashboard(request):
     fecha_fin = request.GET.get('fecha_fin')
     
     # Convertir strings a datetime
-    if fecha_inicio:
-        try:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        except:
-            fecha_inicio_dt = None
-    else:
-        fecha_inicio_dt = None
-    
-    if fecha_fin:
-        try:
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        except:
-            fecha_fin_dt = None
-    else:
-        fecha_fin_dt = None
+    fecha_inicio_dt = parse_date(fecha_inicio)
+    fecha_fin_dt = end_of_day(parse_date(fecha_fin))
     
     # Base de ventas filtrada por rango de fechas
     if fecha_inicio_dt and fecha_fin_dt:
@@ -467,11 +453,9 @@ def clientes(request):
     
     # Filtro por fecha de registro
     if fecha_desde:
-        try:
-            fecha_desde_dt = datetime.strptime(fecha_desde, '%Y-%m-%d')
+        fecha_desde_dt = parse_date(fecha_desde)
+        if fecha_desde_dt:
             clientes = clientes.filter(fecha_registro__gte=fecha_desde_dt)
-        except:
-            pass
     
     # Obtener ciudades únicas
     ciudades = Cliente.objects.values_list('ciudad', flat=True).distinct()
@@ -572,19 +556,14 @@ def ventas(request):
     
     # Filtro por rango de fechas
     if fecha_inicio:
-        try:
-            fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_inicio_obj = parse_date(fecha_inicio)
+        if fecha_inicio_obj:
             ventas_list = ventas_list.filter(fecha_venta__gte=fecha_inicio_obj)
-        except:
-            pass
     
     if fecha_fin:
-        try:
-            fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            fecha_fin_obj = fecha_fin_obj.replace(hour=23, minute=59, second=59)
+        fecha_fin_obj = end_of_day(parse_date(fecha_fin))
+        if fecha_fin_obj:
             ventas_list = ventas_list.filter(fecha_venta__lte=fecha_fin_obj)
-        except:
-            pass
     
     estados_choices = [('', 'Todos'), ('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')]
     
@@ -829,23 +808,8 @@ def reportes(request):
     fecha_fin = request.GET.get('fecha_fin')
     
     # Convertir strings a datetime
-    if fecha_inicio:
-        try:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        except:
-            fecha_inicio_dt = None
-    else:
-        fecha_inicio_dt = None
-    
-    if fecha_fin:
-        try:
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            # Agregar un día para incluir todo el día final
-            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        except:
-            fecha_fin_dt = None
-    else:
-        fecha_fin_dt = None
+    fecha_inicio_dt = parse_date(fecha_inicio)
+    fecha_fin_dt = end_of_day(parse_date(fecha_fin))
     
     # Filtrar ventas por rango de fechas
     ventas_filtro = Venta.objects.all()
@@ -980,23 +944,8 @@ def exportar_reporte_pdf(request):
     fecha_fin = request.GET.get('fecha_fin')
     
     # Convertir strings a datetime
-    if fecha_inicio:
-        try:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-        except:
-            fecha_inicio_dt = None
-    else:
-        fecha_inicio_dt = None
-    
-    if fecha_fin:
-        try:
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
-            # Agregar un día para incluir todo el día final
-            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        except:
-            fecha_fin_dt = None
-    else:
-        fecha_fin_dt = None
+    fecha_inicio_dt = parse_date(fecha_inicio)
+    fecha_fin_dt = end_of_day(parse_date(fecha_fin))
     
     # Filtrar ventas por rango de fechas
     ventas_filtro = Venta.objects.all()
