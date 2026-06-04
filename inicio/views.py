@@ -4,6 +4,9 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Producto, Cliente, Venta
+from django.db.models import Sum
+from datetime import datetime, timedelta
+import json
 
 
 # Vista de inicio
@@ -84,11 +87,36 @@ def ventas(request):
 
 # Reportes
 def reportes(request):
+    # Datos generales
+    total_productos = Producto.objects.count()
+    total_clientes = Cliente.objects.count()
+    total_ventas = Venta.objects.count()
+    ventas_completadas = Venta.objects.filter(estado='completada').count()
+    
+    # Datos para gráfico de ventas por mes (últimos 6 meses)
+    meses = []
+    ventas_por_mes = []
+    
+    for i in range(5, -1, -1):
+        fecha = datetime.now() - timedelta(days=30*i)
+        mes = fecha.strftime('%B %Y')
+        meses.append(mes)
+        
+        # Ventas del mes
+        ventas_mes = Venta.objects.filter(
+            fecha_venta__year=fecha.year,
+            fecha_venta__month=fecha.month,
+            estado='completada'
+        ).aggregate(total=Sum('total'))['total'] or 0
+        ventas_por_mes.append(float(ventas_mes))
+    
     context = {
-        'total_productos': Producto.objects.count(),
-        'total_clientes': Cliente.objects.count(),
-        'total_ventas': Venta.objects.count(),
-        'ventas_completadas': Venta.objects.filter(estado='completada').count(),
+        'total_productos': total_productos,
+        'total_clientes': total_clientes,
+        'total_ventas': total_ventas,
+        'ventas_completadas': ventas_completadas,
+        'meses': json.dumps(meses),
+        'ventas_por_mes': json.dumps(ventas_por_mes),
     }
 
     return render(request, 'reportes.html', context)
