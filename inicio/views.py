@@ -744,6 +744,19 @@ def descargar_recibo_venta(request, id):
     elements.append(resumen_table)
     elements.append(Spacer(1, 0.4*inch))
     
+    # Notas adicionales (si existen)
+    if venta.notas:
+        elements.append(Paragraph("NOTAS ADICIONALES", heading_style))
+        notes_style = ParagraphStyle(
+            'notes',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=colors.HexColor('#374151'),
+            alignment=0
+        )
+        elements.append(Paragraph(venta.notas, notes_style))
+        elements.append(Spacer(1, 0.3*inch))
+    
     # Pie de página
     from reportlab.platypus import HRFlowable
     elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#d1d5db')))

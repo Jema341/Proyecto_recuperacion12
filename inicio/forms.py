@@ -37,11 +37,12 @@ class ClienteForm(forms.ModelForm):
 class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
-        fields = ['cliente', 'producto', 'cantidad', 'precio_unitario', 'estado']
+        fields = ['cliente', 'producto', 'cantidad', 'precio_unitario', 'estado', 'notas']
         widgets = {
             'cliente': forms.Select(attrs={'class': 'form-control'}),
             'producto': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
             'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio unitario'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
+            'notas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Notas adicionales sobre esta venta'}),
         }

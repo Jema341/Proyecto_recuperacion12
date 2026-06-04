@@ -55,6 +55,7 @@ class Venta(models.Model):
         ],
         default='pendiente'
     )
+    notas = models.TextField(blank=True, null=True, help_text="Notas adicionales sobre la venta")
 
     def __str__(self):
         return f"Venta {self.id} - {self.cliente.nombre}"

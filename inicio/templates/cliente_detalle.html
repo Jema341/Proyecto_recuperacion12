@@ -147,6 +147,7 @@
                   <th class="text-right">Total</th>
                   <th>Fecha</th>
                   <th>Estado</th>
+                  <th>Notas</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -169,6 +170,13 @@
                     </span>
                   </td>
                   <td>
+                    {% if venta.notas %}
+                      <button class="btn btn-sm btn-outline-info" onclick="mostrarNotasCliente('{{ venta.id }}', '{{ venta.notas|escapejs }}')">📝 Ver</button>
+                    {% else %}
+                      <span class="text-muted small">—</span>
+                    {% endif %}
+                  </td>
+                  <td>
                     <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-sm btn-success" title="Descargar recibo">📄</a>
                     <a href="{% url 'editar_venta' venta.id %}" class="btn btn-sm btn-warning" title="Editar venta">✏️</a>
                     <a href="{% url 'eliminar_venta' venta.id %}" class="btn btn-sm btn-danger" title="Eliminar venta">🗑️</a>
@@ -187,5 +195,35 @@
       </div>
     </div>
   </div>
+
+<!-- Modal para ver notas (Cliente Detalle) -->
+<div class="modal fade" id="modalNotasCliente" tabindex="-1" role="dialog" aria-labelledby="modalNotasClienteLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNotasClienteLabel">📝 Notas de la Venta #<span id="ventaIdClienteModal"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="notasContenidoCliente"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <a id="editarVentaBtnCliente" href="#" class="btn btn-primary">✏️ Editar Venta</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function mostrarNotasCliente(ventaId, notas) {
+  document.getElementById('ventaIdClienteModal').textContent = ventaId;
+  document.getElementById('notasContenidoCliente').textContent = notas;
+  document.getElementById('editarVentaBtnCliente').href = '/ventas/' + ventaId + '/editar/';
+  $('#modalNotasCliente').modal('show');
+}
+</script>
 
 {% include 'footer.html' %}
