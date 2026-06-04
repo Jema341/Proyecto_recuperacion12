@@ -254,6 +254,33 @@ def editar_producto(request, id):
     return render(request, 'editar_producto.html', {'producto': producto})
 
 
+def crear_producto(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        precio = request.POST.get('precio')
+        stock = request.POST.get('stock')
+        categoria = request.POST.get('categoria')
+        
+        producto = Producto(
+            nombre=nombre,
+            descripcion=descripcion,
+            precio=precio,
+            stock=stock,
+            categoria=categoria
+        )
+        
+        # Manejo de imagen
+        if 'imagen' in request.FILES:
+            producto.imagen = request.FILES['imagen']
+        
+        producto.save()
+        messages.success(request, 'Producto creado correctamente')
+        return redirect('productos')
+    
+    return render(request, 'crear_producto.html')
+
+
 # Clientes
 def clientes(request):
     clientes = Cliente.objects.all()
