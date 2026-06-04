@@ -34,6 +34,15 @@ class Profile(models.Model):
     def __str__(self):
         return f"Perfil de {self.user.username}"
 
+    @property
+    def full_name(self):
+        return f"{self.user.first_name} {self.user.last_name}".strip() or self.user.username
+
+    def get_avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        return ''
+
 
 # Crear perfil automáticamente al crear un usuario
 @receiver(post_save, sender=User)
