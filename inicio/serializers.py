@@ -37,6 +37,7 @@ class ClienteSerializer:
             'direccion': cliente.direccion,
             'ciudad': cliente.ciudad,
             'fecha_registro': cliente.fecha_registro.isoformat(),
+            'ventas_totales': cliente.venta_set.count(),
         }
 
     @staticmethod
