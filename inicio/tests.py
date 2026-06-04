@@ -1,5 +1,6 @@
 from django.test import TestCase
 from inicio.models import Producto, Cliente, Venta
+from inicio.forms import VentaForm
 from inicio.serializers import ProductoSerializer, ClienteSerializer, VentaSerializer
 from inicio.utils import calcular_total_venta, aplicar_descuento, formatear_moneda, formatear_porcentaje
 
@@ -58,3 +59,46 @@ class SerializerTestCase(TestCase):
         data = VentaSerializer.serialize(self.venta)
         self.assertEqual(data['cliente'], self.cliente.nombre)
         self.assertEqual(data['total'], 500.00)
+
+
+class VentaFormTestCase(TestCase):
+    def setUp(self):
+        self.producto = Producto.objects.create(
+            nombre='Auriculares',
+            descripcion='Auriculares de prueba',
+            precio=55.00,
+            stock=10,
+            categoria='Audio'
+        )
+        self.cliente = Cliente.objects.create(
+            nombre='Luis Vargas',
+            email='luis@example.com',
+            telefono='0987654321',
+            ciudad='Quito'
+        )
+
+    def test_venta_form_rechaza_cantidad_negativa(self):
+        form_data = {
+            'cliente': self.cliente.id,
+            'producto': self.producto.id,
+            'cantidad': -1,
+            'precio_unitario': 120.0,
+            'estado': 'pendiente',
+            'notas': 'Prueba'
+        }
+        form = VentaForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('cantidad', form.errors)
+
+    def test_venta_form_rechaza_precio_negativo(self):
+        form_data = {
+            'cliente': self.cliente.id,
+            'producto': self.producto.id,
+            'cantidad': 2,
+            'precio_unitario': -120.0,
+            'estado': 'pendiente',
+            'notas': 'Prueba'
+        }
+        form = VentaForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('precio_unitario', form.errors)
