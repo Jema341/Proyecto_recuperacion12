@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import Producto, Cliente, Venta, Profile
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
 import json
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
@@ -607,9 +608,16 @@ def editar_venta(request, id):
     venta = Venta.objects.get(id=id)
     
     if request.method == 'POST':
-        venta.cantidad = request.POST.get('cantidad', venta.cantidad)
-        venta.precio_unitario = request.POST.get('precio_unitario', venta.precio_unitario)
-        venta.total = float(venta.cantidad) * float(venta.precio_unitario)
+        try:
+            venta.cantidad = int(request.POST.get('cantidad', venta.cantidad))
+        except (TypeError, ValueError):
+            venta.cantidad = venta.cantidad
+
+        try:
+            venta.precio_unitario = Decimal(request.POST.get('precio_unitario', venta.precio_unitario))
+        except (TypeError, ValueError, InvalidOperation):
+            venta.precio_unitario = venta.precio_unitario
+
         venta.estado = request.POST.get('estado', venta.estado)
         venta.save()
         messages.success(request, 'Venta actualizada correctamente')
