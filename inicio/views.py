@@ -9,6 +9,12 @@ from .forms import ProductoForm, ClienteForm, VentaForm
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.units import inch
+from io import BytesIO
 
 
 def parse_date(value, format='%Y-%m-%d'):
@@ -32,12 +38,6 @@ def end_of_day(value):
     if value:
         return value.replace(hour=23, minute=59, second=59)
     return value
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
-from reportlab.lib.units import inch
-from io import BytesIO
 
 
 # Vista de inicio
