@@ -4,20 +4,184 @@
 <div class="clearfix"></div>
   <div class="content-wrapper">
     <div class="container-fluid">
+      <!-- Encabezado -->
       <div class="row">
         <div class="col-12">
-          <h4 class="mb-4">{{ cliente.nombre }}</h4>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>👤 {{ cliente.nombre }}</h4>
+            <div>
+              <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-warning">✏️ Editar</a>
+              <a href="{% url 'clientes' %}" class="btn btn-secondary">← Volver</a>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- Información Personal -->
+      <div class="row mb-4">
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">📋 Información Personal</h6>
+              <div class="mb-3">
+                <label class="text-muted">Email:</label>
+                <p>{{ cliente.email }}</p>
+              </div>
+              <div class="mb-3">
+                <label class="text-muted">Teléfono:</label>
+                <p>{{ cliente.telefono|default:"No registrado" }}</p>
+              </div>
+              <div class="mb-3">
+                <label class="text-muted">Ciudad:</label>
+                <p>{{ cliente.ciudad|default:"No registrado" }}</p>
+              </div>
+              <div class="mb-3">
+                <label class="text-muted">Dirección:</label>
+                <p>{{ cliente.direccion|default:"No registrado" }}</p>
+              </div>
+              <div>
+                <label class="text-muted">Registrado:</label>
+                <p>{{ cliente.fecha_registro|date:"d/m/Y H:i" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="col-lg-8">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card border-success">
+                <div class="card-body">
+                  <h6 class="card-title text-success">✅ Compras Completadas</h6>
+                  <p class="h3 text-success">{{ total_compras_completadas }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border-info">
+                <div class="card-body">
+                  <h6 class="card-title text-info">💰 Total Gastado</h6>
+                  <p class="h3 text-info">${{ total_gastado|floatformat:2 }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border-warning">
+                <div class="card-body">
+                  <h6 class="card-title text-warning">⏳ Compras Pendientes</h6>
+                  <p class="h3 text-warning">{{ total_compras_pendientes }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border-danger">
+                <div class="card-body">
+                  <h6 class="card-title text-danger">❌ Compras Canceladas</h6>
+                  <p class="h3 text-danger">{{ total_compras_canceladas }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border-primary">
+                <div class="card-body">
+                  <h6 class="card-title text-primary">📊 Promedio por Compra</h6>
+                  <p class="h3 text-primary">${{ promedio_compra|floatformat:2 }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border-dark">
+                <div class="card-body">
+                  <h6 class="card-title">📈 Total de Transacciones</h6>
+                  <p class="h3">{{ todas_ventas.count }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos Comprados -->
+      {% if productos_comprados %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">🛍️ Productos Comprados</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-borderless">
+              <thead>
+                <tr class="bg-light">
+                  <th>Producto</th>
+                  <th class="text-center">Cantidad Total</th>
+                  <th class="text-center">Veces Comprado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for producto in productos_comprados %}
+                <tr>
+                  <td>{{ producto.producto__nombre }}</td>
+                  <td class="text-center"><span class="badge badge-success">{{ producto.cantidad }}</span></td>
+                  <td class="text-center"><span class="badge badge-info">{{ producto.veces_comprado }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Historial de Compras -->
       <div class="card">
         <div class="card-body">
-          <p><strong>Email:</strong> {{ cliente.email }}</p>
-          <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
-          <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
-          <p><strong>Ciudad:</strong> {{ cliente.ciudad }}</p>
-          <p><strong>Fecha Registro:</strong> {{ cliente.fecha_registro|date:"d/m/Y H:i" }}</p>
-          <a href="{% url 'clientes' %}" class="btn btn-secondary">Volver</a>
+          <h6 class="card-title">📜 Historial de Compras</h6>
+          {% if todas_ventas %}
+          <div class="table-responsive">
+            <table class="table table-hover table-borderless">
+              <thead>
+                <tr class="bg-light">
+                  <th>#Venta</th>
+                  <th>Producto</th>
+                  <th class="text-center">Cantidad</th>
+                  <th class="text-right">Precio Unitario</th>
+                  <th class="text-right">Total</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for venta in todas_ventas %}
+                <tr>
+                  <td><strong>#{{ venta.id }}</strong></td>
+                  <td>
+                    <a href="{% url 'producto_detalle' venta.producto.id %}">
+                      {{ venta.producto.nombre }}
+                    </a>
+                  </td>
+                  <td class="text-center">{{ venta.cantidad }}</td>
+                  <td class="text-right">${{ venta.precio_unitario|floatformat:2 }}</td>
+                  <td class="text-right"><strong>${{ venta.total|floatformat:2 }}</strong></td>
+                  <td><small class="text-muted">{{ venta.fecha_venta|date:"d/m/Y H:i" }}</small></td>
+                  <td>
+                    <span class="badge badge-{% if venta.estado == 'completada' %}success{% elif venta.estado == 'pendiente' %}warning{% else %}danger{% endif %}">
+                      {{ venta.get_estado_display }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-sm btn-success" title="Descargar recibo">📄</a>
+                    <a href="{% url 'editar_venta' venta.id %}" class="btn btn-sm btn-warning" title="Editar venta">✏️</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="alert alert-info mb-0">
+            <p class="mb-0">Este cliente aún no tiene historial de compras.</p>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -358,7 +358,41 @@ def clientes(request):
 
 def cliente_detalle(request, id):
     cliente = Cliente.objects.get(id=id)
-    return render(request, 'cliente_detalle.html', {'cliente': cliente})
+    
+    # Obtener ventas del cliente
+    ventas_completadas = Venta.objects.filter(cliente=cliente, estado='completada')
+    ventas_pendientes = Venta.objects.filter(cliente=cliente, estado='pendiente')
+    ventas_canceladas = Venta.objects.filter(cliente=cliente, estado='cancelada')
+    todas_ventas = Venta.objects.filter(cliente=cliente).order_by('-fecha_venta')
+    
+    # Estadísticas
+    total_compras_completadas = ventas_completadas.count()
+    total_gastado = ventas_completadas.aggregate(total=Sum('total'))['total'] or 0
+    total_compras_pendientes = ventas_pendientes.count()
+    total_compras_canceladas = ventas_canceladas.count()
+    promedio_compra = (total_gastado / total_compras_completadas) if total_compras_completadas > 0 else 0
+    
+    # Productos comprados
+    productos_comprados = Venta.objects.filter(
+        cliente=cliente, 
+        estado='completada'
+    ).values('producto__nombre').annotate(
+        cantidad=Sum('cantidad'),
+        veces_comprado=Count('id')
+    ).order_by('-cantidad')
+    
+    context = {
+        'cliente': cliente,
+        'total_compras_completadas': total_compras_completadas,
+        'total_gastado': total_gastado,
+        'total_compras_pendientes': total_compras_pendientes,
+        'total_compras_canceladas': total_compras_canceladas,
+        'promedio_compra': promedio_compra,
+        'todas_ventas': todas_ventas,
+        'productos_comprados': productos_comprados,
+    }
+    
+    return render(request, 'cliente_detalle.html', context)
 
 
 def editar_cliente(request, id):
