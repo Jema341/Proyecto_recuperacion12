@@ -72,7 +72,7 @@ class Venta(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=0)
     fecha_venta = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(
         max_length=20,
@@ -84,6 +84,14 @@ class Venta(models.Model):
         default='pendiente'
     )
     notas = models.TextField(blank=True, null=True, help_text="Notas adicionales sobre la venta")
+
+    def save(self, *args, **kwargs):
+        self.total = self.cantidad * self.precio_unitario
+        super().save(*args, **kwargs)
+
+    @property
+    def total_calculado(self):
+        return self.cantidad * self.precio_unitario
 
     def __str__(self):
         return f"Venta {self.id} - {self.cliente.nombre}"
