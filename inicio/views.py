@@ -428,6 +428,176 @@ def editar_venta(request, id):
     return render(request, 'editar_venta.html', {'venta': venta, 'estados_choices': estados_choices})
 
 
+def descargar_recibo_venta(request, id):
+    """Genera y descarga un recibo PDF de una venta"""
+    
+    venta = Venta.objects.get(id=id)
+    
+    # Crear respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="recibo_venta_{venta.id}.pdf"'
+    
+    # Crear documento PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    # Contenido
+    elements = []
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=28,
+        textColor=colors.HexColor('#1f2937'),
+        spaceAfter=5,
+        alignment=1,
+        fontName='Helvetica-Bold'
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        textColor=colors.HexColor('#374151'),
+        spaceAfter=8,
+        spaceBefore=8
+    )
+    
+    # Encabezado
+    elements.append(Paragraph("RECIBO DE VENTA", title_style))
+    elements.append(Spacer(1, 0.1*inch))
+    
+    # Línea separadora
+    from reportlab.platypus import HRFlowable
+    elements.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#3b82f6')))
+    elements.append(Spacer(1, 0.2*inch))
+    
+    # Información del recibo
+    info_data = [
+        ['Número de Recibo:', f'#VTA-{venta.id}'],
+        ['Fecha:', venta.fecha_venta.strftime('%d/%m/%Y %H:%M:%S')],
+        ['Estado:', venta.get_estado_display().upper()],
+    ]
+    
+    info_table = Table(info_data, colWidths=[2*inch, 3*inch])
+    info_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(info_table)
+    elements.append(Spacer(1, 0.2*inch))
+    
+    # Información del cliente
+    elements.append(Paragraph("INFORMACIÓN DEL CLIENTE", heading_style))
+    
+    cliente_data = [
+        ['Nombre:', venta.cliente.nombre],
+        ['Email:', venta.cliente.email],
+        ['Teléfono:', venta.cliente.telefono or 'N/A'],
+        ['Ciudad:', venta.cliente.ciudad or 'N/A'],
+    ]
+    
+    cliente_table = Table(cliente_data, colWidths=[1.5*inch, 3.5*inch])
+    cliente_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f3f4f6')),
+    ]))
+    elements.append(cliente_table)
+    elements.append(Spacer(1, 0.2*inch))
+    
+    # Detalles del producto
+    elements.append(Paragraph("DETALLES DE LA COMPRA", heading_style))
+    
+    detalle_data = [
+        ['Producto', 'Cantidad', 'Precio Unitario', 'Total'],
+        [
+            venta.producto.nombre,
+            str(venta.cantidad),
+            f'${venta.precio_unitario:.2f}',
+            f'${venta.total:.2f}'
+        ]
+    ]
+    
+    detalle_table = Table(detalle_data, colWidths=[2.5*inch, 1*inch, 1.2*inch, 1.3*inch])
+    detalle_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#10b981')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('TOPPADDING', (0, 0), (-1, 0), 10),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#d1d5db')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0fdf4')]),
+        ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),
+    ]))
+    elements.append(detalle_table)
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Resumen financiero
+    resumen_data = [
+        ['Subtotal:', f'${venta.total:.2f}'],
+        ['Impuesto (0%):', '$0.00'],
+        ['TOTAL A PAGAR:', f'${venta.total:.2f}'],
+    ]
+    
+    resumen_table = Table(resumen_data, colWidths=[3*inch, 2*inch])
+    resumen_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (0, 1), 'Helvetica'),
+        ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 1), 10),
+        ('FONTSIZE', (0, 2), (-1, 2), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 2), (-1, 2), 12),
+        ('TOPPADDING', (0, 2), (-1, 2), 12),
+        ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#3b82f6')),
+        ('TEXTCOLOR', (0, 2), (-1, 2), colors.whitesmoke),
+        ('GRID', (0, 2), (-1, 2), 2, colors.HexColor('#3b82f6')),
+        ('ALIGN', (0, 2), (-1, 2), 'RIGHT'),
+    ]))
+    elements.append(resumen_table)
+    elements.append(Spacer(1, 0.4*inch))
+    
+    # Pie de página
+    from reportlab.platypus import HRFlowable
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#d1d5db')))
+    elements.append(Spacer(1, 0.1*inch))
+    
+    footer_text = "Gracias por su compra. Este recibo es válido como comprobante de transacción."
+    elements.append(Paragraph(footer_text, ParagraphStyle(
+        'footer',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.HexColor('#6b7280'),
+        alignment=1
+    )))
+    
+    # Construir PDF
+    doc.build(elements)
+    
+    # Retornar PDF
+    buffer.seek(0)
+    response.write(buffer.getvalue())
+    buffer.close()
+    
+    return response
+
+
+
 # Reportes
 def reportes(request):
     # Parámetros de fecha

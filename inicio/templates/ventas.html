@@ -73,13 +73,14 @@
                 </td>
                 <td>{{ venta.fecha_venta|date:"d/m/Y" }}</td>
                 <td>
+                  <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-sm btn-success" title="Descargar recibo">📄 Recibo</a>
                   <a href="{% url 'editar_venta' venta.id %}" class="btn btn-sm btn-warning">Editar</a>
                   <a href="#" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">Cancelar</a>
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="7" class="text-center text-muted">No hay ventas registradas</td>
+                <td colspan="8" class="text-center text-muted">No hay ventas registradas</td>
               </tr>
               {% endfor %}
             </tbody>

@@ -69,6 +69,7 @@
 
             <div class="form-group">
               <button type="submit" class="btn btn-success">Guardar Cambios</button>
+              <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-info">📄 Descargar Recibo</a>
               <a href="{% url 'ventas' %}" class="btn btn-secondary">Cancelar</a>
             </div>
           </form>
