@@ -35,6 +35,14 @@ source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+4. Dependencias adicionales:
+- `reportlab` es necesario para generar archivos PDF de recibos y reportes.
+
+5. Si usa Windows, active el entorno virtual con:
+```bash
+venv\Scripts\activate
+```
+
 4. Hacer migraciones:
 ```bash
 python manage.py migrate
