@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title>Registro - Dashtreme Admin</title>
+  <link href="{% static 'private/css/bootstrap.min.css' %}" rel="stylesheet"/>
+  <link href="{% static 'private/css/app-style.css' %}" rel="stylesheet"/>
+  <style>
+    .registration-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    .registration-card {
+      width: 100%;
+      max-width: 500px;
+      padding: 40px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="bg-theme">
+  <div class="registration-container">
+    <div class="registration-card">
+      <h3 class="text-center mb-4">Crear Cuenta</h3>
+      <form>
+        <div class="form-group">
+          <label for="nombre">Nombre Completo</label>
+          <input type="text" class="form-control" id="nombre" placeholder="Ingrese su nombre" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" class="form-control" id="email" placeholder="Ingrese su email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" class="form-control" id="password" placeholder="Ingrese una contraseña" required>
+        </div>
+        <div class="form-group">
+          <label for="password_confirm">Confirmar Contraseña</label>
+          <input type="password" class="form-control" id="password_confirm" placeholder="Confirme su contraseña" required>
+        </div>
+        <div class="form-group">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="terms" required>
+            <label class="custom-control-label" for="terms">Acepto los términos y condiciones</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+      </form>
+      <hr>
+      <p class="text-center">¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+    </div>
+  </div>
+</body>
+</html>
