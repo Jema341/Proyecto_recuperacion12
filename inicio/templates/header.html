@@ -139,28 +139,29 @@
     </li>
     <li class="nav-item">
       <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-        <span class="user-profile"><img src="{% static 'private/assets/images/avatar-placeholder.svg' %}" class="img-circle" alt="user avatar"></span>
+        <span class="user-profile"><i class="fa fa-user-circle" style="font-size: 24px;"></i></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-right">
-       <li class="dropdown-item user-details">
-        <a href="javaScript:void();">
-           <div class="media">
-             <div class="avatar"><img class="align-self-start mr-3" src="{% static 'private/assets/images/avatar-placeholder.svg' %}" alt="user avatar"></div>
-            <div class="media-body">
-            <h6 class="mt-2 user-title">Sarajhon Mccoy</h6>
-            <p class="user-subtitle">mccoy@example.com</p>
+        {% if user.is_authenticated %}
+        <li class="dropdown-item user-details">
+          <a href="{% url 'user_panel' %}">
+            <div class="media">
+              <div class="media-body">
+                <h6 class="mt-2 user-title">{{ user.get_full_name|default:user.username }}</h6>
+                <p class="user-subtitle">{{ user.email }}</p>
+              </div>
             </div>
-           </div>
           </a>
         </li>
         <li class="dropdown-divider"></li>
-        <li class="dropdown-item"><i class="icon-envelope mr-2"></i> Inbox</li>
+        <li class="dropdown-item"><a href="{% url 'user_panel' %}"><i class="icon-user-following mr-2"></i>Mi Panel</a></li>
+        <li class="dropdown-item"><a href="{% url 'edit_profile' %}"><i class="icon-settings mr-2"></i>Editar Perfil</a></li>
         <li class="dropdown-divider"></li>
-        <li class="dropdown-item"><i class="icon-wallet mr-2"></i> Account</li>
-        <li class="dropdown-divider"></li>
-        <li class="dropdown-item"><i class="icon-settings mr-2"></i> Setting</li>
-        <li class="dropdown-divider"></li>
-        <li class="dropdown-item"><i class="icon-power mr-2"></i> Logout</li>
+        <li class="dropdown-item"><a href="/admin/logout/"><i class="icon-power mr-2"></i>Cerrar Sesión</a></li>
+        {% else %}
+        <li class="dropdown-item"><a href="{% url 'login' %}"><i class="icon-login mr-2"></i>Iniciar Sesión</a></li>
+        <li class="dropdown-item"><a href="{% url 'registration' %}"><i class="icon-user-add mr-2"></i>Registrarse</a></li>
+        {% endif %}
       </ul>
     </li>
   </ul>

@@ -1,6 +1,9 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .models import UserProfile
 
 # Create your views here.
 def inicio(request):
@@ -23,6 +26,51 @@ def calendar(request):
 
 def profile(request):
   return render(request, 'profile.html')
+
+@login_required(login_url='login')
+def user_panel(request):
+  try:
+    user_profile = UserProfile.objects.get(user=request.user)
+  except UserProfile.DoesNotExist:
+    user_profile = UserProfile.objects.create(user=request.user)
+  
+  context = {
+    'user_profile': user_profile,
+    'user': request.user
+  }
+  return render(request, 'user-panel.html', context)
+
+@login_required(login_url='login')
+def edit_profile(request):
+  try:
+    user_profile = UserProfile.objects.get(user=request.user)
+  except UserProfile.DoesNotExist:
+    user_profile = UserProfile.objects.create(user=request.user)
+  
+  if request.method == 'POST':
+    # Actualizar datos del usuario
+    request.user.first_name = request.POST.get('first_name', request.user.first_name)
+    request.user.last_name = request.POST.get('last_name', request.user.last_name)
+    request.user.email = request.POST.get('email', request.user.email)
+    request.user.save()
+    
+    # Actualizar perfil
+    user_profile.bio = request.POST.get('bio', user_profile.bio)
+    user_profile.phone = request.POST.get('phone', user_profile.phone)
+    user_profile.company = request.POST.get('company', user_profile.company)
+    user_profile.location = request.POST.get('location', user_profile.location)
+    
+    if 'avatar' in request.FILES:
+      user_profile.avatar = request.FILES['avatar']
+    
+    user_profile.save()
+    return redirect('user_panel')
+  
+  context = {
+    'user_profile': user_profile,
+    'user': request.user
+  }
+  return render(request, 'edit-profile.html', context)
 
 def login_view(request):
   return render(request, 'login.html')
