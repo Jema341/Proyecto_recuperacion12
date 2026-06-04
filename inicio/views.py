@@ -314,6 +314,7 @@ def clientes(request):
     clientes = Cliente.objects.all()
     busqueda = request.GET.get('busqueda', '')
     ciudad = request.GET.get('ciudad', '')
+    fecha_desde = request.GET.get('fecha_desde', '')
     
     # Filtro por búsqueda
     if busqueda:
@@ -327,14 +328,29 @@ def clientes(request):
     if ciudad:
         clientes = clientes.filter(ciudad=ciudad)
     
+    # Filtro por fecha de registro
+    if fecha_desde:
+        try:
+            fecha_desde_dt = datetime.strptime(fecha_desde, '%Y-%m-%d')
+            clientes = clientes.filter(fecha_registro__gte=fecha_desde_dt)
+        except:
+            pass
+    
     # Obtener ciudades únicas
     ciudades = Cliente.objects.values_list('ciudad', flat=True).distinct()
+    
+    # Agregar estadísticas de cada cliente
+    clientes = clientes.annotate(
+        total_compras=Count('venta', filter=Q(venta__estado='completada')),
+        total_gastado=Sum('venta__total', filter=Q(venta__estado='completada'))
+    ).order_by('-fecha_registro')
     
     context = {
         'clientes': clientes,
         'ciudades': ciudades,
         'busqueda': busqueda,
         'ciudad': ciudad,
+        'fecha_desde': fecha_desde,
     }
     
     return render(request, 'clientes.html', context)

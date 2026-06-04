@@ -6,32 +6,37 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-12">
-          <h4 class="mb-4">Clientes</h4>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Clientes</h4>
+            <a href="#" class="btn btn-primary">+ Agregar Cliente</a>
+          </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header d-flex justify-content-between">
-          <h6 class="card-title">Listado de Clientes</h6>
-          <a href="#" class="btn btn-sm btn-primary">+ Agregar Cliente</a>
-        </div>
-        
-        <!-- Filtros de Búsqueda -->
         <div class="card-body border-bottom">
+          <h6 class="card-title mb-3">🔍 Búsqueda y Filtros</h6>
           <form method="GET" class="row g-3">
-            <div class="col-md-6">
-              <input type="text" class="form-control" name="busqueda" placeholder="Buscar por nombre, email o teléfono..." value="{{ busqueda }}">
+            <div class="col-md-3">
+              <label class="form-label">Búsqueda</label>
+              <input type="text" class="form-control" name="busqueda" placeholder="Nombre, email o teléfono..." value="{{ busqueda }}">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
+              <label class="form-label">Ciudad</label>
               <select class="form-control" name="ciudad">
-                <option value="">Todas las ciudades</option>
+                <option value="">Todas</option>
                 {% for cid in ciudades %}
                   <option value="{{ cid }}" {% if ciudad == cid %}selected{% endif %}>{{ cid }}</option>
                 {% endfor %}
               </select>
             </div>
             <div class="col-md-2">
-              <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+              <label class="form-label">Registrado desde</label>
+              <input type="date" class="form-control" name="fecha_desde" value="{{ fecha_desde }}">
+            </div>
+            <div class="col-md-5 d-flex gap-2 align-items-end">
+              <button type="submit" class="btn btn-primary flex-grow-1">🔎 Filtrar</button>
+              <a href="{% url 'clientes' %}" class="btn btn-secondary">↻ Limpiar</a>
             </div>
           </form>
         </div>
@@ -39,30 +44,58 @@
         <div class="table-responsive">
           <table class="table table-hover table-borderless">
             <thead>
-              <tr>
+              <tr class="bg-light">
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Teléfono</th>
                 <th>Ciudad</th>
+                <th class="text-center">📊 Compras</th>
+                <th class="text-right">💰 Gastado</th>
+                <th>Registro</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {% for cliente in clientes %}
               <tr>
-                <td>{{ cliente.nombre }}</td>
+                <td>
+                  <strong>{{ cliente.nombre }}</strong>
+                </td>
                 <td>{{ cliente.email }}</td>
                 <td>{{ cliente.telefono }}</td>
-                <td>{{ cliente.ciudad }}</td>
                 <td>
-                  <a href="{% url 'cliente_detalle' cliente.id %}" class="btn btn-sm btn-info">Ver</a>
-                  <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-sm btn-warning">Editar</a>
-                  <a href="#" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">Eliminar</a>
+                  {% if cliente.ciudad %}
+                    <span class="badge badge-info">{{ cliente.ciudad }}</span>
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if cliente.total_compras %}
+                    <span class="badge badge-success">{{ cliente.total_compras }}</span>
+                  {% else %}
+                    <span class="badge badge-secondary">0</span>
+                  {% endif %}
+                </td>
+                <td class="text-right">
+                  {% if cliente.total_gastado %}
+                    <strong>${{ cliente.total_gastado|floatformat:2 }}</strong>
+                  {% else %}
+                    <span class="text-muted">$0.00</span>
+                  {% endif %}
+                </td>
+                <td><small class="text-muted">{{ cliente.fecha_registro|date:"d/m/Y" }}</small></td>
+                <td>
+                  <a href="{% url 'cliente_detalle' cliente.id %}" class="btn btn-sm btn-info" title="Ver detalles">👁️</a>
+                  <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-sm btn-warning" title="Editar cliente">✏️</a>
+                  <a href="#" class="btn btn-sm btn-danger" title="Eliminar cliente" onclick="return confirm('¿Está seguro de que desea eliminar este cliente?')">🗑️</a>
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="5" class="text-center text-muted">No hay clientes registrados</td>
+                <td colspan="8" class="text-center text-muted py-4">
+                  <p>No hay clientes que coincidan con los filtros</p>
+                </td>
               </tr>
               {% endfor %}
             </tbody>
