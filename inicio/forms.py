@@ -11,13 +11,14 @@ from .models import Producto, Cliente, Venta
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria']
+        fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del producto'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Stock'}),
             'categoria': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Categoría'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
 
 
