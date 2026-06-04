@@ -24,7 +24,7 @@
             </div>
             <div class="col-md-3">
               <select class="form-control" name="categoria">
-                <option value="">Todas las categorías</option>
+                <option value="">Todas las categorias</option>
                 {% for cat in categorias %}
                   <option value="{{ cat }}" {% if categoria == cat %}selected{% endif %}>{{ cat }}</option>
                 {% endfor %}
@@ -49,7 +49,7 @@
                 <th>Imagen</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
-                <th>Precio</th>
+                <th>Cantidad</th>
                 <th>Stock</th>
                 <th>Acciones</th>
               </tr>
