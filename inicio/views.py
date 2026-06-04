@@ -1303,6 +1303,7 @@ def edit_profile(request):
         user_profile.phone = request.POST.get('phone', user_profile.phone)
         user_profile.company = request.POST.get('company', user_profile.company)
         user_profile.location = request.POST.get('location', user_profile.location)
+        user_profile.direccion = request.POST.get('direccion', user_profile.direccion)
         user_profile.bio = request.POST.get('bio', user_profile.bio)
         user_profile.save()
 
