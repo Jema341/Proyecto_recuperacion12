@@ -15,6 +15,35 @@
           <h6 class="card-title">Historial de Ventas</h6>
           <a href="#" class="btn btn-sm btn-primary">+ Nueva Venta</a>
         </div>
+        
+        <!-- Filtros de Búsqueda -->
+        <div class="card-body border-bottom">
+          <form method="GET" class="row g-3">
+            <div class="col-md-3">
+              <input type="text" class="form-control" name="busqueda" placeholder="Buscar cliente, producto o ID..." value="{{ busqueda }}">
+            </div>
+            <div class="col-md-2">
+              <select class="form-control" name="estado">
+                {% for val, label in estados_choices %}
+                  <option value="{{ val }}" {% if estado == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}" placeholder="Desde">
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}" placeholder="Hasta">
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+            </div>
+            <div class="col-md-2">
+              <a href="?=" class="btn btn-secondary btn-sm w-100">Limpiar</a>
+            </div>
+          </form>
+        </div>
+        
         <div class="table-responsive">
           <table class="table table-hover table-borderless">
             <thead>

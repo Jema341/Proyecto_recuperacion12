@@ -15,6 +15,33 @@
           <h6 class="card-title">Listado de Productos</h6>
           <a href="#" class="btn btn-sm btn-primary">+ Agregar Producto</a>
         </div>
+        
+        <!-- Filtros de Búsqueda -->
+        <div class="card-body border-bottom">
+          <form method="GET" class="row g-3">
+            <div class="col-md-4">
+              <input type="text" class="form-control" name="busqueda" placeholder="Buscar producto..." value="{{ busqueda }}">
+            </div>
+            <div class="col-md-3">
+              <select class="form-control" name="categoria">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias %}
+                  <option value="{{ cat }}" {% if categoria == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="number" class="form-control" name="precio_min" placeholder="Precio mín." step="0.01" value="{{ precio_min }}">
+            </div>
+            <div class="col-md-2">
+              <input type="number" class="form-control" name="precio_max" placeholder="Precio máx." step="0.01" value="{{ precio_max }}">
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+            </div>
+          </form>
+        </div>
+        
         <div class="table-responsive">
           <table class="table table-hover table-borderless">
             <thead>

@@ -15,6 +15,27 @@
           <h6 class="card-title">Listado de Clientes</h6>
           <a href="#" class="btn btn-sm btn-primary">+ Agregar Cliente</a>
         </div>
+        
+        <!-- Filtros de Búsqueda -->
+        <div class="card-body border-bottom">
+          <form method="GET" class="row g-3">
+            <div class="col-md-6">
+              <input type="text" class="form-control" name="busqueda" placeholder="Buscar por nombre, email o teléfono..." value="{{ busqueda }}">
+            </div>
+            <div class="col-md-4">
+              <select class="form-control" name="ciudad">
+                <option value="">Todas las ciudades</option>
+                {% for cid in ciudades %}
+                  <option value="{{ cid }}" {% if ciudad == cid %}selected{% endif %}>{{ cid }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+            </div>
+          </form>
+        </div>
+        
         <div class="table-responsive">
           <table class="table table-hover table-borderless">
             <thead>

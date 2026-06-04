@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Producto, Cliente, Venta
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
 
@@ -184,7 +184,48 @@ def registration(request):
 # Productos
 def productos(request):
     productos = Producto.objects.all()
-    return render(request, 'productos.html', {'productos': productos})
+    busqueda = request.GET.get('busqueda', '')
+    categoria = request.GET.get('categoria', '')
+    precio_min = request.GET.get('precio_min', '')
+    precio_max = request.GET.get('precio_max', '')
+    
+    # Filtro por búsqueda
+    if busqueda:
+        productos = productos.filter(
+            Q(nombre__icontains=busqueda) | 
+            Q(descripcion__icontains=busqueda)
+        )
+    
+    # Filtro por categoría
+    if categoria:
+        productos = productos.filter(categoria=categoria)
+    
+    # Filtro por rango de precio
+    if precio_min:
+        try:
+            productos = productos.filter(precio__gte=float(precio_min))
+        except:
+            pass
+    
+    if precio_max:
+        try:
+            productos = productos.filter(precio__lte=float(precio_max))
+        except:
+            pass
+    
+    # Obtener categorías únicas
+    categorias = Producto.objects.values_list('categoria', flat=True).distinct()
+    
+    context = {
+        'productos': productos,
+        'categorias': categorias,
+        'busqueda': busqueda,
+        'categoria': categoria,
+        'precio_min': precio_min,
+        'precio_max': precio_max,
+    }
+    
+    return render(request, 'productos.html', context)
 
 
 def producto_detalle(request, id):
@@ -195,7 +236,32 @@ def producto_detalle(request, id):
 # Clientes
 def clientes(request):
     clientes = Cliente.objects.all()
-    return render(request, 'clientes.html', {'clientes': clientes})
+    busqueda = request.GET.get('busqueda', '')
+    ciudad = request.GET.get('ciudad', '')
+    
+    # Filtro por búsqueda
+    if busqueda:
+        clientes = clientes.filter(
+            Q(nombre__icontains=busqueda) | 
+            Q(email__icontains=busqueda) |
+            Q(telefono__icontains=busqueda)
+        )
+    
+    # Filtro por ciudad
+    if ciudad:
+        clientes = clientes.filter(ciudad=ciudad)
+    
+    # Obtener ciudades únicas
+    ciudades = Cliente.objects.values_list('ciudad', flat=True).distinct()
+    
+    context = {
+        'clientes': clientes,
+        'ciudades': ciudades,
+        'busqueda': busqueda,
+        'ciudad': ciudad,
+    }
+    
+    return render(request, 'clientes.html', context)
 
 
 def cliente_detalle(request, id):
@@ -205,8 +271,52 @@ def cliente_detalle(request, id):
 
 # Ventas
 def ventas(request):
-    ventas = Venta.objects.all()
-    return render(request, 'ventas.html', {'ventas': ventas})
+    ventas_list = Venta.objects.all()
+    busqueda = request.GET.get('busqueda', '')
+    estado = request.GET.get('estado', '')
+    fecha_inicio = request.GET.get('fecha_inicio', '')
+    fecha_fin = request.GET.get('fecha_fin', '')
+    
+    # Filtro por búsqueda (cliente o producto)
+    if busqueda:
+        ventas_list = ventas_list.filter(
+            Q(cliente__nombre__icontains=busqueda) | 
+            Q(producto__nombre__icontains=busqueda) |
+            Q(id__icontains=busqueda)
+        )
+    
+    # Filtro por estado
+    if estado:
+        ventas_list = ventas_list.filter(estado=estado)
+    
+    # Filtro por rango de fechas
+    if fecha_inicio:
+        try:
+            fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            ventas_list = ventas_list.filter(fecha_venta__gte=fecha_inicio_obj)
+        except:
+            pass
+    
+    if fecha_fin:
+        try:
+            fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            fecha_fin_obj = fecha_fin_obj.replace(hour=23, minute=59, second=59)
+            ventas_list = ventas_list.filter(fecha_venta__lte=fecha_fin_obj)
+        except:
+            pass
+    
+    estados_choices = [('', 'Todos'), ('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')]
+    
+    context = {
+        'ventas': ventas_list,
+        'estados_choices': estados_choices,
+        'busqueda': busqueda,
+        'estado': estado,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+    }
+    
+    return render(request, 'ventas.html', context)
 
 
 # Reportes
