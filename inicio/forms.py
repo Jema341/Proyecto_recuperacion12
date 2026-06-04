@@ -12,6 +12,18 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria']
+        labels = {
+            'nombre': 'Nombre del producto',
+            'descripcion': 'Descripción',
+            'precio': 'Precio unitario',
+            'stock': 'Stock disponible',
+            'categoria': 'Categoría',
+        }
+        help_texts = {
+            'precio': 'Ingrese el precio unitario del producto.',
+            'stock': 'Ingrese la cantidad disponible en inventario.',
+            'categoria': 'Categoría de producto, por ejemplo Electrónica o Hogar.',
+        }
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del producto'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción'}),
