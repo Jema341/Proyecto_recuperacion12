@@ -1,5 +1,6 @@
 from django.test import TestCase
-from inicio.models import Producto, Cliente, Venta
+from django.contrib.auth.models import User
+from inicio.models import Producto, Cliente, Venta, Profile
 from inicio.forms import VentaForm
 from inicio.serializers import ProductoSerializer, ClienteSerializer, VentaSerializer
 from inicio.utils import calcular_total_venta, aplicar_descuento, formatear_moneda, formatear_porcentaje
@@ -102,3 +103,15 @@ class VentaFormTestCase(TestCase):
         form = VentaForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('precio_unitario', form.errors)
+
+
+class ProfileModelTestCase(TestCase):
+    def test_profile_full_name(self):
+        user = User.objects.create_user(username='maria', email='maria@example.com', password='abc123', first_name='María', last_name='Gómez')
+        profile = Profile.objects.create(user=user)
+        self.assertEqual(profile.full_name, 'María Gómez')
+
+    def test_profile_avatar_url_vacio(self):
+        user = User.objects.create_user(username='carlos', email='carlos@example.com', password='abc123')
+        profile = Profile.objects.create(user=user)
+        self.assertEqual(profile.get_avatar_url(), '')
