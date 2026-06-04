@@ -7,10 +7,12 @@
 **GET** `/productos/`
 - Retorna: Lista de todos los productos
 - Parámetros: ninguno
+- Formato de respuesta: JSON
 
 **GET** `/producto/<id>/`
 - Retorna: Detalle de un producto específico
 - Parámetros: id (entero)
+- Formato de respuesta: JSON
 
 ### Clientes
 
