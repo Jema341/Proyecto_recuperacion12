@@ -37,6 +37,18 @@ class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = ['nombre', 'email', 'telefono', 'direccion', 'ciudad']
+        labels = {
+            'nombre': 'Nombre completo',
+            'email': 'Correo electrónico',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección',
+            'ciudad': 'Ciudad',
+        }
+        help_texts = {
+            'email': 'Usa una dirección de correo válida para identificar al cliente.',
+            'telefono': 'Número de teléfono de contacto.',
+            'direccion': 'Dirección postal o ubicación del cliente.',
+        }
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
