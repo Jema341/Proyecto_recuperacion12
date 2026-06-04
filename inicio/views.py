@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Producto, Cliente, Venta
+from .forms import ProductoForm, ClienteForm, VentaForm
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
@@ -363,48 +364,28 @@ def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
-        producto.nombre = request.POST.get('nombre', producto.nombre)
-        producto.descripcion = request.POST.get('descripcion', producto.descripcion)
-        producto.precio = request.POST.get('precio', producto.precio)
-        producto.stock = request.POST.get('stock', producto.stock)
-        producto.categoria = request.POST.get('categoria', producto.categoria)
-        
-        # Manejo de imagen
-        if 'imagen' in request.FILES:
-            producto.imagen = request.FILES['imagen']
-        
-        producto.save()
-        messages.success(request, 'Producto actualizado correctamente')
-        return redirect('productos')
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto actualizado correctamente')
+            return redirect('productos')
+    else:
+        form = ProductoForm(instance=producto)
     
-    return render(request, 'editar_producto.html', {'producto': producto})
+    return render(request, 'editar_producto.html', {'form': form, 'producto': producto})
 
 
 def crear_producto(request):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
-        precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
-        categoria = request.POST.get('categoria')
-        
-        producto = Producto(
-            nombre=nombre,
-            descripcion=descripcion,
-            precio=precio,
-            stock=stock,
-            categoria=categoria
-        )
-        
-        # Manejo de imagen
-        if 'imagen' in request.FILES:
-            producto.imagen = request.FILES['imagen']
-        
-        producto.save()
-        messages.success(request, 'Producto creado correctamente')
-        return redirect('productos')
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto creado correctamente')
+            return redirect('productos')
+    else:
+        form = ProductoForm()
     
-    return render(request, 'crear_producto.html')
+    return render(request, 'crear_producto.html', {'form': form})
 
 
 def eliminar_producto(request, id):
