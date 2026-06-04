@@ -88,6 +88,45 @@
         </div>
       </div>
 
+      <!-- Clientes VIP -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">👑 Top 5 Clientes VIP</h6>
+        </div>
+        <div class="card-body">
+          {% if clientes_vip %}
+          <div class="table-responsive">
+            <table class="table table-hover table-sm">
+              <thead>
+                <tr style="background-color: #f3e8ff;">
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Email</th>
+                  <th>Compras</th>
+                  <th>Total Gastado</th>
+                  <th>Promedio/Compra</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cliente in clientes_vip %}
+                <tr>
+                  <td><strong>{{ forloop.counter }}</strong></td>
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.email }}</td>
+                  <td><span class="badge badge-info">{{ cliente.total_compras }}</span></td>
+                  <td><strong class="text-success">${{ cliente.total_gastado|floatformat:2 }}</strong></td>
+                  <td>${{ cliente.promedio_compra|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted text-center py-3">No hay clientes VIP en este período</p>
+          {% endif %}
+        </div>
+      </div>
+
       <div class="card mt-4">
         <div class="card-header">
           <h6 class="card-title">Resumen de Actividad</h6>

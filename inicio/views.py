@@ -483,6 +483,22 @@ def reportes(request):
         ).aggregate(total=Sum('total'))['total'] or 0
         ventas_por_mes.append(float(ventas_mes))
     
+    # Clientes VIP (Top 5 por ingresos)
+    clientes_vip = []
+    clientes_data = Cliente.objects.annotate(
+        total_compras=Count('venta', filter=Q(venta__in=ventas_filtro.filter(estado='completada'))),
+        total_gastado=Sum('venta__total', filter=Q(venta__in=ventas_filtro.filter(estado='completada')))
+    ).filter(total_compras__gt=0).order_by('-total_gastado')[:5]
+    
+    for cliente in clientes_data:
+        clientes_vip.append({
+            'nombre': cliente.nombre,
+            'email': cliente.email,
+            'total_compras': cliente.total_compras or 0,
+            'total_gastado': cliente.total_gastado or 0,
+            'promedio_compra': (cliente.total_gastado / cliente.total_compras) if cliente.total_compras > 0 else 0
+        })
+    
     context = {
         'total_productos': total_productos,
         'total_clientes': total_clientes,
@@ -492,6 +508,7 @@ def reportes(request):
         'ventas_por_mes': json.dumps(ventas_por_mes),
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
+        'clientes_vip': clientes_vip,
     }
 
     return render(request, 'reportes.html', context)
@@ -644,8 +661,44 @@ def exportar_reporte_pdf(request):
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0fdf4')])
         ]))
         elements.append(ventas_table)
+    
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Clientes VIP
+    elements.append(Paragraph("TOP 5 CLIENTES VIP (POR INGRESOS)", heading_style))
+    
+    # Calcular clientes VIP
+    clientes_vip_pdf = Cliente.objects.annotate(
+        total_compras=Count('venta', filter=Q(venta__in=ventas_filtro.filter(estado='completada'))),
+        total_gastado=Sum('venta__total', filter=Q(venta__in=ventas_filtro.filter(estado='completada')))
+    ).filter(total_compras__gt=0).order_by('-total_gastado')[:5]
+    
+    if clientes_vip_pdf:
+        vip_data = [['Cliente', 'Email', 'Compras', 'Total Gastado', 'Promedio']]
+        for cliente in clientes_vip_pdf:
+            promedio = (cliente.total_gastado / cliente.total_compras) if cliente.total_compras > 0 else 0
+            vip_data.append([
+                cliente.nombre[:20],
+                cliente.email[:20],
+                str(cliente.total_compras),
+                f"${cliente.total_gastado:.2f}",
+                f"${promedio:.2f}"
+            ])
+        
+        vip_table = Table(vip_data, colWidths=[1.5*inch, 1.5*inch, 1*inch, 1.2*inch, 1*inch])
+        vip_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8b5cf6')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#faf5ff')])
+        ]))
+        elements.append(vip_table)
     else:
-        elements.append(Paragraph("No hay ventas completadas en este período", styles['Normal']))
+        elements.append(Paragraph("No hay clientes VIP en este período", styles['Normal']))
     
     elements.append(Spacer(1, 0.3*inch))
     
