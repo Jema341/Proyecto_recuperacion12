@@ -523,6 +523,33 @@ def reportes(request):
             'promedio_compra': (cliente.total_gastado / cliente.total_compras) if cliente.total_compras > 0 else 0
         })
     
+    # Productos Top 5 (más vendidos)
+    productos_top = []
+    productos_data = Producto.objects.filter(
+        venta__in=ventas_filtro.filter(estado='completada')
+    ).annotate(
+        cantidad_vendida=Sum('venta__cantidad'),
+        ingresos_totales=Sum('venta__total'),
+        numero_ventas=Count('venta', filter=Q(venta__in=ventas_filtro.filter(estado='completada')))
+    ).order_by('-cantidad_vendida')[:5]
+    
+    nombres_productos_top = []
+    cantidades_productos_top = []
+    colores_productos_top = [
+        '#ff6b6b', '#4ecdc4', '#45b7d1', '#ffa07a', '#98d8c8'
+    ]
+    
+    for producto in productos_data:
+        productos_top.append({
+            'nombre': producto.nombre,
+            'cantidad_vendida': producto.cantidad_vendida or 0,
+            'ingresos_totales': producto.ingresos_totales or 0,
+            'numero_ventas': producto.numero_ventas or 0,
+            'precio_promedio': (producto.ingresos_totales / producto.cantidad_vendida) if producto.cantidad_vendida > 0 else 0
+        })
+        nombres_productos_top.append(producto.nombre[:20])
+        cantidades_productos_top.append(int(producto.cantidad_vendida or 0))
+    
     # Preparar datos de categorías para JSON
     categorias_json = json.dumps(categorias)
     valores_categorias_json = json.dumps([cat['valor'] for cat in ventas_por_categoria])
@@ -541,6 +568,10 @@ def reportes(request):
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
         'clientes_vip': clientes_vip,
+        'productos_top': productos_top,
+        'nombres_productos_top': json.dumps(nombres_productos_top),
+        'cantidades_productos_top': json.dumps(cantidades_productos_top),
+        'colores_productos_top': json.dumps(colores_productos_top),
     }
 
     return render(request, 'reportes.html', context)
@@ -693,6 +724,46 @@ def exportar_reporte_pdf(request):
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0fdf4')])
         ]))
         elements.append(ventas_table)
+    
+    
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Top 5 Productos Más Vendidos
+    elements.append(Paragraph("TOP 5 PRODUCTOS MÁS VENDIDOS", heading_style))
+    
+    productos_top_pdf = Producto.objects.filter(
+        venta__in=ventas_filtro.filter(estado='completada')
+    ).annotate(
+        cantidad_vendida=Sum('venta__cantidad'),
+        ingresos_totales=Sum('venta__total'),
+        numero_ventas=Count('venta', filter=Q(venta__in=ventas_filtro.filter(estado='completada')))
+    ).order_by('-cantidad_vendida')[:5]
+    
+    if productos_top_pdf:
+        productos_data = [['Producto', 'Cantidad', 'Ingresos', 'Precio Promedio']]
+        for producto in productos_top_pdf:
+            precio_promedio = (producto.ingresos_totales / producto.cantidad_vendida) if producto.cantidad_vendida > 0 else 0
+            productos_data.append([
+                producto.nombre[:20],
+                str(int(producto.cantidad_vendida or 0)),
+                f"${producto.ingresos_totales:.2f}",
+                f"${precio_promedio:.2f}"
+            ])
+        
+        productos_table = Table(productos_data, colWidths=[1.8*inch, 1.2*inch, 1.2*inch, 1.3*inch])
+        productos_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ff6b6b')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#ffe4e4')])
+        ]))
+        elements.append(productos_table)
+    else:
+        elements.append(Paragraph("No hay productos vendidos en este período", styles['Normal']))
     
     elements.append(Spacer(1, 0.3*inch))
     

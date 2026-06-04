@@ -98,6 +98,48 @@
         </div>
       </div>
 
+      <!-- Top 5 Productos -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">🏆 Top 5 Productos Más Vendidos</h6>
+        </div>
+        <div class="card-body">
+          {% if productos_top %}
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead style="background-color: #fff5f7;">
+                    <tr>
+                      <th>#</th>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Ingresos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for producto in productos_top %}
+                    <tr>
+                      <td><strong>{{ forloop.counter }}</strong></td>
+                      <td>{{ producto.nombre }}</td>
+                      <td><span class="badge badge-primary">{{ producto.cantidad_vendida }} unid.</span></td>
+                      <td><strong class="text-danger">${{ producto.ingresos_totales|floatformat:2 }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <canvas id="productosChart" height="200"></canvas>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-muted text-center py-3">No hay productos vendidos en este período</p>
+          {% endif %}
+        </div>
+      </div>
+
       <!-- Clientes VIP -->
       <div class="card mt-4">
         <div class="card-header">
@@ -242,6 +284,49 @@
             ticks: {
               callback: function(value) {
                 return '$' + value.toFixed(2);
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de Top 5 Productos
+  const productosLabels = {{ nombres_productos_top|safe }};
+  const productosValues = {{ cantidades_productos_top|safe }};
+  const productosColors = {{ colores_productos_top|safe }};
+
+  if (productosLabels.length > 0) {
+    const ctxProductos = document.getElementById('productosChart').getContext('2d');
+    const productosChart = new Chart(ctxProductos, {
+      type: 'doughnut',
+      data: {
+        labels: productosLabels,
+        datasets: [{
+          label: 'Cantidad Vendida',
+          data: productosValues,
+          backgroundColor: productosColors,
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#333',
+              font: { size: 12 },
+              padding: 15
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + context.parsed.y + ' unidades';
               }
             }
           }
