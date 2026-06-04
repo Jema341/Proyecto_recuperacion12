@@ -1,0 +1,87 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="mb-4">Editar Venta #{{ venta.id }}</h4>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title">Formulario de Edición</h6>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label>Cliente</label>
+                  <input type="text" class="form-control" value="{{ venta.cliente.nombre }}" disabled>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label>Producto</label>
+                  <input type="text" class="form-control" value="{{ venta.producto.nombre }}" disabled>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="cantidad">Cantidad *</label>
+                  <input type="number" class="form-control" id="cantidad" name="cantidad" value="{{ venta.cantidad }}" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="precio_unitario">Precio Unitario *</label>
+                  <input type="number" class="form-control" id="precio_unitario" name="precio_unitario" step="0.01" value="{{ venta.precio_unitario }}" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label>Total</label>
+                  <input type="text" class="form-control" value="${{ venta.total }}" disabled>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="estado">Estado *</label>
+                  <select class="form-control" id="estado" name="estado" required>
+                    {% for val, label in estados_choices %}
+                      <option value="{{ val }}" {% if venta.estado == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="notas">📝 Notas / Comentarios</label>
+              <textarea class="form-control" id="notas" name="notas" rows="4" placeholder="Agregue notas o comentarios adicionales sobre esta venta">{{ venta.notas }}</textarea>
+              <small class="text-muted">Información adicional que quiera agregar sobre esta transacción</small>
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-success">Guardar Cambios</button>
+              <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-info">📄 Descargar Recibo</a>
+              <a href="{% url 'ventas' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}

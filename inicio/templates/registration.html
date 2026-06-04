@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title>Registro - Dashtreme Admin</title>
+  <link href="{% static 'private/css/bootstrap.min.css' %}" rel="stylesheet"/>
+  <link href="{% static 'private/css/app-style.css' %}" rel="stylesheet"/>
+  <style>
+    .registration-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    .registration-card {
+      width: 100%;
+      max-width: 520px;
+      padding: 36px 44px;
+      background: linear-gradient(180deg,#ffffff 0%, #fff9f6 100%);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(22,28,45,0.12);
+      border: 1px solid rgba(255,159,67,0.08);
+    }
+    /* Estilos llamativos y mejoras de usabilidad para registro */
+    .registration-card h3 { font-weight: 800; font-size: 1.45rem; margin-bottom: 0.6rem; background: linear-gradient(90deg,#ff6b6b,#ff9f43); -webkit-background-clip: text; color: transparent; }
+    .registration-card label { color: #374785; font-weight: 600; }
+    .registration-card a { color: #ff9f43; font-weight: 600; text-decoration: none; }
+    .registration-card a:hover { color: #ff6b6b; text-decoration: underline; }
+
+    /* Asegurar que el texto "¿Ya tienes cuenta?" */
+    .registration-card p.text-center { color:  #374785; }
+    .registration-card p.text-center a { color: #ff9f43; }
+
+    /* Badge decorativo superior */
+    .reg-badge { width:80px; height:80px; margin:0 auto 12px; border-radius:50%; background: linear-gradient(135deg,#ff9f43 0%,#ff6b6b 100%); display:flex; align-items:center; justify-content:center; box-shadow: 0 10px 30px rgba(255,105,135,0.12); }
+    .reg-badge svg { width:40px; height:40px; fill: #ffffff; }
+
+    /* Inputs y focus states */
+    .registration-card input.form-control,
+    .registration-card textarea.form-control,
+    .registration-card select.form-control {
+      border: 1.8px solid #c1c9e6; 
+      background: #ffffff; 
+      color: #111 !important; 
+      caret-color: #ff6b6b !important; 
+      transition: border-color .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s;
+      padding: .75rem .85rem;
+      border-radius: 8px;
+      box-shadow: inset 0 1px 0 rgba(53, 41, 41, 0.6);
+    }
+    .registration-card input.form-control:focus,
+    .registration-card textarea.form-control:focus,
+    .registration-card select.form-control:focus {
+      border-color: #ff9f43;
+      box-shadow: 0 6px 20px rgba(255,159,67,0.12), 0 0 0 0.12rem rgba(255,159,67,0.06);
+      outline: none;
+      color: #111 !important;
+    }
+    .registration-card input.form-control::placeholder,
+    .registration-card textarea.form-control::placeholder,
+    .registration-card select.form-control::placeholder,
+    .registration-card input.form-control:-ms-input-placeholder,
+    .registration-card textarea.form-control:-ms-input-placeholder,
+    .registration-card input.form-control::-ms-input-placeholder,
+    .registration-card textarea.form-control::-ms-input-placeholder,
+    .registration-card input.form-control::-webkit-input-placeholder,
+    .registration-card textarea.form-control::-webkit-input-placeholder {
+      color: #9aa3c1 !important;
+      opacity: 1;
+    }
+
+    /* Asegurar color en select/textarea si se agregan */
+    .registration-card select, .registration-card textarea { color: #111 !important; }
+
+    /* Botón con degradado animado */
+    .registration-card .btn-primary {
+      background: linear-gradient(90deg,#ff6b6b 0%,#ff9f43 50%,#ffb86b 100%);
+      background-size: 200% 100%;
+      border: none; color: #fff; font-weight: 700; padding: .7rem .9rem; border-radius: 10px;
+      transition: background-position .4s ease, transform .08s ease;
+    }
+    .registration-card .btn-primary:hover { background-position: 100% 0; transform: translateY(-2px); }
+
+    /* Alert style ligero */
+    .registration-card .alert { border-left: 4px solid #ff6b6b; }
+
+    @media (max-width: 576px) {
+      .registration-card { padding: 20px; }
+      .reg-badge { width:64px; height:64px; }
+    }
+  </style>
+</head>
+<body class="bg-theme">
+  <div class="registration-container">
+    <div class="registration-card">
+      <div class="reg-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <h3 class="text-center mb-4">Crear Cuenta</h3>
+      {% if messages %}
+        <div class="alert alert-danger" role="alert">
+          {% for message in messages %}
+            <div>{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <form method="POST" action="{% url 'registration' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="first_name">Nombre</label>
+          <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Ingrese su nombre" required>
+        </div>
+        <div class="form-group">
+          <label for="last_name">Apellido</label>
+          <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Ingrese su apellido" required>
+        </div>
+        <div class="form-group">
+          <label for="username">Usuario</label>
+          <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su usuario" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese una contraseña" required>
+        </div>
+        <div class="form-group">
+          <label for="password_confirm">Confirmar Contraseña</label>
+          <input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Confirme su contraseña" required>
+        </div>
+        <div class="form-group">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="terms" required>
+            <label class="custom-control-label" for="terms">Acepto los términos y condiciones</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+      </form>
+      <hr>
+      <p class="text-center">¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+    </div>
+  </div>
+</body>
+</html>

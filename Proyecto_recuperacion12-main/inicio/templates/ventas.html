@@ -1,0 +1,58 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="mb-4">Ventas</h4>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <h6 class="card-title">Historial de Ventas</h6>
+          <a href="#" class="btn btn-sm btn-primary">+ Nueva Venta</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-borderless">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venta in ventas %}
+              <tr>
+                <td>#{{ venta.id }}</td>
+                <td>{{ venta.cliente.nombre }}</td>
+                <td>{{ venta.producto.nombre }}</td>
+                <td>{{ venta.cantidad }}</td>
+                <td>${{ venta.total }}</td>
+                <td>
+                  <span class="badge badge-{% if venta.estado == 'completada' %}success{% elif venta.estado == 'pendiente' %}warning{% else %}danger{% endif %}">
+                    {{ venta.get_estado_display }}
+                  </span>
+                </td>
+                <td>{{ venta.fecha_venta|date:"d/m/Y" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted">No hay ventas registradas</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}

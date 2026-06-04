@@ -1,0 +1,91 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="mb-4">Productos</h4>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <h6 class="card-title">Listado de Productos</h6>
+          <a href="{% url 'crear_producto' %}" class="btn btn-sm btn-primary">+ Agregar Producto</a>
+        </div>
+        
+        <!-- Filtros de Búsqueda -->
+        <div class="card-body border-bottom">
+          <form method="GET" class="row g-3">
+            <div class="col-md-4">
+              <input type="text" class="form-control" name="busqueda" placeholder="Buscar producto..." value="{{ busqueda }}">
+            </div>
+            <div class="col-md-3">
+              <select class="form-control" name="categoria">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias %}
+                  <option value="{{ cat }}" {% if categoria == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="number" class="form-control" name="precio_min" placeholder="Precio mín." step="0.01" value="{{ precio_min }}">
+            </div>
+            <div class="col-md-2">
+              <input type="number" class="form-control" name="precio_max" placeholder="Precio máx." step="0.01" value="{{ precio_max }}">
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+            </div>
+          </form>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover table-borderless">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in productos %}
+              <tr>
+                <td>
+                  {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                  {% else %}
+                    <div style="width: 50px; height: 50px; background-color: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                      <small>Sin imagen</small>
+                    </div>
+                  {% endif %}
+                </td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.categoria }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>{{ producto.stock }}</td>
+                <td>
+                  <a href="{% url 'producto_detalle' producto.id %}" class="btn btn-sm btn-info">Ver</a>
+                  <a href="{% url 'editar_producto' producto.id %}" class="btn btn-sm btn-warning">Editar</a>
+                  <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">No hay productos registrados</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}

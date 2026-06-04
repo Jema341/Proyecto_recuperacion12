@@ -1,0 +1,166 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>{{ producto.nombre }}</h4>
+            <div>
+              <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
+              <a href="{% url 'productos' %}" class="btn btn-secondary btn-sm">← Volver</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Imagen y Información Básica -->
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-body">
+              {% if producto.imagen %}
+              <div class="mb-3">
+                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; border-radius: 4px;">
+              </div>
+              {% else %}
+              <div style="width: 100%; height: 300px; background-color: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <small class="text-muted">Sin imagen</small>
+              </div>
+              {% endif %}
+              
+              <h6 class="card-title">Información Básica</h6>
+              <table class="table table-sm">
+                <tr>
+                  <td><strong>ID:</strong></td>
+                  <td>#{{ producto.id }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Categoría:</strong></td>
+                  <td>{{ producto.categoria|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Precio:</strong></td>
+                  <td class="text-success"><strong>${{ producto.precio }}</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Stock:</strong></td>
+                  <td>
+                    {% if producto.stock < 10 %}
+                      <span class="badge badge-warning">{{ producto.stock }} unidades</span>
+                    {% elif producto.stock == 0 %}
+                      <span class="badge badge-danger">Agotado</span>
+                    {% else %}
+                      <span class="badge badge-success">{{ producto.stock }} unidades</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Creado:</strong></td>
+                  <td>{{ producto.fecha_creacion|date:"d/m/Y" }}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción y Estadísticas -->
+        <div class="col-lg-8">
+          <!-- Descripción -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="card-title">Descripción</h6>
+            </div>
+            <div class="card-body">
+              <p>{{ producto.descripcion|linebreaks|default:"Sin descripción" }}</p>
+            </div>
+          </div>
+
+          <!-- Estadísticas de Ventas -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="card-title">📊 Estadísticas de Ventas</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="mb-1">{{ total_unidades_vendidas }}</h5>
+                    <small class="text-muted">Unidades Vendidas</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="mb-1">${{ ingresos_totales|floatformat:2 }}</h5>
+                    <small class="text-muted">Ingresos Totales</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="mb-1">${{ precio_promedio|floatformat:2 }}</h5>
+                    <small class="text-muted">Precio Promedio</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="mb-1">{{ total_ventas }}</h5>
+                    <small class="text-muted">Total Transacciones</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historial de Ventas -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">📋 Historial de Ventas (últimas 10)</h6>
+            </div>
+            <div class="card-body">
+              {% if ultimas_ventas %}
+              <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                  <thead>
+                    <tr>
+                      <th>ID Venta</th>
+                      <th>Cliente</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Total</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for venta in ultimas_ventas %}
+                    <tr>
+                      <td>#{{ venta.id }}</td>
+                      <td>{{ venta.cliente.nombre }}</td>
+                      <td>{{ venta.cantidad }}</td>
+                      <td>${{ venta.precio_unitario }}</td>
+                      <td><strong>${{ venta.total }}</strong></td>
+                      <td>{{ venta.fecha_venta|date:"d/m/Y H:i" }}</td>
+                      <td>
+                        <span class="badge badge-{% if venta.estado == 'completada' %}success{% elif venta.estado == 'pendiente' %}warning{% else %}danger{% endif %}">
+                          {{ venta.get_estado_display }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <p class="text-muted text-center py-3">No hay ventas registradas para este producto</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}
+

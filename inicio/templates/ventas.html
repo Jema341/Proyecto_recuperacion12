@@ -1,0 +1,155 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="mb-4">Ventas</h4>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <h6 class="card-title">Historial de Ventas</h6>
+          <a href="#" class="btn btn-sm btn-primary">+ Nueva Venta</a>
+        </div>
+        
+        <!-- Filtros de Búsqueda -->
+        <div class="card-body border-bottom">
+          <form method="GET" class="row g-3">
+            <div class="col-md-3">
+              <input type="text" class="form-control" name="busqueda" placeholder="Buscar cliente, producto o ID..." value="{{ busqueda }}">
+            </div>
+            <div class="col-md-2">
+              <select class="form-control" name="estado">
+                {% for val, label in estados_choices %}
+                  <option value="{{ val }}" {% if estado == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}" placeholder="Desde">
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}" placeholder="Hasta">
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+            </div>
+            <div class="col-md-2">
+              <a href="?=" class="btn btn-secondary btn-sm w-100">Limpiar</a>
+            </div>
+          </form>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover table-borderless">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Notas</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venta in ventas %}
+              <tr>
+                <td>#{{ venta.id }}</td>
+                <td>{{ venta.cliente.nombre }}</td>
+                <td>{{ venta.producto.nombre }}</td>
+                <td>{{ venta.cantidad }}</td>
+                <td>${{ venta.total }}</td>
+                <td>
+                  <span class="badge badge-{% if venta.estado == 'completada' %}success{% elif venta.estado == 'pendiente' %}warning{% else %}danger{% endif %}">
+                    {{ venta.get_estado_display }}
+                  </span>
+                </td>
+                <td>{{ venta.fecha_venta|date:"d/m/Y" }}</td>
+                <td>
+                  {% if venta.notas %}
+                    <button class="btn btn-sm btn-outline-info" data-toggle="tooltip" title="{{ venta.notas }}" onclick="mostrarNotas('{{ venta.id }}', '{{ venta.notas|escapejs }}')">📝 Ver</button>
+                  {% else %}
+                    <span class="text-muted small">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-success" title="Descargar recibo">📄</a>
+                    <a href="{% url 'editar_venta' venta.id %}" class="btn btn-warning" title="Editar venta">✏️</a>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Estado
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        {% if venta.estado != 'pendiente' %}
+                          <a class="dropdown-item" href="{% url 'cambiar_estado_venta' venta.id 'pendiente' %}" onclick="return confirm('¿Cambiar a Pendiente?')">
+                            ⏳ Pendiente
+                          </a>
+                        {% endif %}
+                        {% if venta.estado != 'completada' %}
+                          <a class="dropdown-item" href="{% url 'cambiar_estado_venta' venta.id 'completada' %}" onclick="return confirm('¿Cambiar a Completada?')">
+                            ✅ Completada
+                          </a>
+                        {% endif %}
+                        {% if venta.estado != 'cancelada' %}
+                          <a class="dropdown-item" href="{% url 'cambiar_estado_venta' venta.id 'cancelada' %}" onclick="return confirm('¿Cambiar a Cancelada?')">
+                            ❌ Cancelada
+                          </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <a href="{% url 'eliminar_venta' venta.id %}" class="btn btn-danger" title="Eliminar venta">🗑️</a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="9" class="text-center text-muted">No hay ventas registradas</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal para ver notas -->
+<div class="modal fade" id="modalNotas" tabindex="-1" role="dialog" aria-labelledby="modalNotasLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNotasLabel">📝 Notas de la Venta #<span id="ventaIdModal"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="notasContenido"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <a id="editarVentaBtn" href="#" class="btn btn-primary">✏️ Editar Venta</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function mostrarNotas(ventaId, notas) {
+  document.getElementById('ventaIdModal').textContent = ventaId;
+  document.getElementById('notasContenido').textContent = notas;
+  document.getElementById('editarVentaBtn').href = '/ventas/' + ventaId + '/editar/';
+  $('#modalNotas').modal('show');
+}
+</script>
+
+{% include 'footer.html' %}

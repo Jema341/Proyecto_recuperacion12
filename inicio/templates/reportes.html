@@ -1,0 +1,338 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="clearfix"></div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Reportes</h4>
+            <a href="{% url 'exportar_reporte_pdf' %}?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" class="btn btn-danger btn-sm" title="Descargar reporte en PDF">
+              <i class="fas fa-file-pdf"></i> Exportar PDF
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtro de Fechas -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="card-title">🗓️ Filtrar por Período</h6>
+        </div>
+        <div class="card-body">
+          <form method="GET" class="row g-2">
+            <div class="col-md-4">
+              <input type="date" class="form-control" name="fecha_inicio" placeholder="Fecha inicio" value="{{ fecha_inicio }}">
+            </div>
+            <div class="col-md-4">
+              <input type="date" class="form-control" name="fecha_fin" placeholder="Fecha fin" value="{{ fecha_fin }}">
+            </div>
+            <div class="col-md-4">
+              <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+              {% if fecha_inicio or fecha_fin %}
+                <a href="{% url 'reportes' %}" class="btn btn-secondary w-100 mt-2">Limpiar</a>
+              {% endif %}
+            </div>
+          </form>
+          {% if fecha_inicio or fecha_fin %}
+            <div class="alert alert-info mt-3 mb-0">
+              📅 Mostrando datos desde {% if fecha_inicio %}{{ fecha_inicio }}{% else %}el inicio{% endif %} 
+              hasta {% if fecha_fin %}{{ fecha_fin }}{% else %}hoy{% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ total_productos }}</h5>
+              <p class="mb-0 text-white small">Productos Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ total_clientes }}</h5>
+              <p class="mb-0 text-white small">Clientes Registrados</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ total_ventas }}</h5>
+              <p class="mb-0 text-white small">Ventas Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-white mb-0">{{ ventas_completadas }}</h5>
+              <p class="mb-0 text-white small">Ventas Completadas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">Gráfico de Ventas por Mes</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="ventasChart" height="80"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico de Ventas por Categoría -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">📊 Ventas por Categoría</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="categoriasChart" height="100"></canvas>
+        </div>
+      </div>
+
+      <!-- Top 5 Productos -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">🏆 Top 5 Productos Más Vendidos</h6>
+        </div>
+        <div class="card-body">
+          {% if productos_top %}
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead style="background-color: #fff5f7;">
+                    <tr>
+                      <th>#</th>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Ingresos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for producto in productos_top %}
+                    <tr>
+                      <td><strong>{{ forloop.counter }}</strong></td>
+                      <td>{{ producto.nombre }}</td>
+                      <td><span class="badge badge-primary">{{ producto.cantidad_vendida }} unid.</span></td>
+                      <td><strong class="text-danger">${{ producto.ingresos_totales|floatformat:2 }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <canvas id="productosChart" height="200"></canvas>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-muted text-center py-3">No hay productos vendidos en este período</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Clientes VIP -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">👑 Top 5 Clientes VIP</h6>
+        </div>
+        <div class="card-body">
+          {% if clientes_vip %}
+          <div class="table-responsive">
+            <table class="table table-hover table-sm">
+              <thead>
+                <tr style="background-color: #f3e8ff;">
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Email</th>
+                  <th>Compras</th>
+                  <th>Total Gastado</th>
+                  <th>Promedio/Compra</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cliente in clientes_vip %}
+                <tr>
+                  <td><strong>{{ forloop.counter }}</strong></td>
+                  <td>{{ cliente.nombre }}</td>
+                  <td>{{ cliente.email }}</td>
+                  <td><span class="badge badge-info">{{ cliente.total_compras }}</span></td>
+                  <td><strong class="text-success">${{ cliente.total_gastado|floatformat:2 }}</strong></td>
+                  <td>${{ cliente.promedio_compra|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted text-center py-3">No hay clientes VIP en este período</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="card-title">Resumen de Actividad</h6>
+        </div>
+        <div class="card-body">
+          <p>Sistema de reportes configurado. Los datos se actualizan automáticamente según la actividad del sistema.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}
+
+<script src="{% static 'plugins/Chart.js/Chart.min.js' %}"></script>
+<script>
+  // Gráfico de Ventas por Mes
+  const ctxVentas = document.getElementById('ventasChart').getContext('2d');
+  const ventasChart = new Chart(ctxVentas, {
+    type: 'line',
+    data: {
+      labels: {{ meses|safe }},
+      datasets: [{
+        label: 'Ventas Completadas ($)',
+        data: {{ ventas_por_mes|safe }},
+        borderColor: '#007bff',
+        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 6,
+        pointBackgroundColor: '#007bff',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: '#333',
+            font: { size: 14 }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toFixed(2);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Gráfico de Ventas por Categoría
+  const categoriasLabels = {{ categorias|safe }};
+  const categoriasValues = {{ valores_categorias|safe }};
+  const categoriasColors = {{ colores_categorias|safe }};
+
+  // Si hay datos de categorías
+  if (categoriasLabels.length > 0) {
+    const ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
+    const categoriasChart = new Chart(ctxCategorias, {
+      type: 'bar',
+      data: {
+        labels: categoriasLabels,
+        datasets: [{
+          label: 'Ventas por Categoría ($)',
+          data: categoriasValues,
+          backgroundColor: categoriasColors,
+          borderColor: categoriasColors.map(color => {
+            // Oscurecer el color del borde
+            return color;
+          }),
+          borderWidth: 2,
+          borderRadius: 4,
+          hoverBackgroundColor: '#ff6b6b'
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: '#333',
+              font: { size: 14 }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toFixed(2);
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de Top 5 Productos
+  const productosLabels = {{ nombres_productos_top|safe }};
+  const productosValues = {{ cantidades_productos_top|safe }};
+  const productosColors = {{ colores_productos_top|safe }};
+
+  if (productosLabels.length > 0) {
+    const ctxProductos = document.getElementById('productosChart').getContext('2d');
+    const productosChart = new Chart(ctxProductos, {
+      type: 'doughnut',
+      data: {
+        labels: productosLabels,
+        datasets: [{
+          label: 'Cantidad Vendida',
+          data: productosValues,
+          backgroundColor: productosColors,
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#333',
+              font: { size: 12 },
+              padding: 15
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + context.parsed.y + ' unidades';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+
