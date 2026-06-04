@@ -538,16 +538,15 @@ def editar_cliente(request, id):
     cliente = get_object_or_404(Cliente, id=id)
     
     if request.method == 'POST':
-        cliente.nombre = request.POST.get('nombre', cliente.nombre)
-        cliente.email = request.POST.get('email', cliente.email)
-        cliente.telefono = request.POST.get('telefono', cliente.telefono)
-        cliente.direccion = request.POST.get('direccion', cliente.direccion)
-        cliente.ciudad = request.POST.get('ciudad', cliente.ciudad)
-        cliente.save()
-        messages.success(request, 'Cliente actualizado correctamente')
-        return redirect('clientes')
+        form = ClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente actualizado correctamente')
+            return redirect('clientes')
+    else:
+        form = ClienteForm(instance=cliente)
     
-    return render(request, 'editar_cliente.html', {'cliente': cliente})
+    return render(request, 'editar_cliente.html', {'form': form, 'cliente': cliente})
 
 
 # Ventas
