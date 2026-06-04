@@ -597,6 +597,24 @@ def descargar_recibo_venta(request, id):
     return response
 
 
+def cambiar_estado_venta(request, id, estado):
+    """Cambia rápidamente el estado de una venta"""
+    venta = Venta.objects.get(id=id)
+    
+    # Validar que el estado sea válido
+    estados_validos = ['pendiente', 'completada', 'cancelada']
+    if estado in estados_validos:
+        venta.estado = estado
+        venta.save()
+        
+        # Mensajes según el estado
+        estado_display = dict([('pendiente', 'Pendiente'), ('completada', 'Completada'), ('cancelada', 'Cancelada')])[estado]
+        messages.success(request, f'Venta #{venta.id} marcada como {estado_display}')
+    else:
+        messages.error(request, 'Estado inválido')
+    
+    return redirect('ventas')
+
 
 # Reportes
 def reportes(request):

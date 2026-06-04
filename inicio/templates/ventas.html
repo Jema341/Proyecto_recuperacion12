@@ -73,9 +73,32 @@
                 </td>
                 <td>{{ venta.fecha_venta|date:"d/m/Y" }}</td>
                 <td>
-                  <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-sm btn-success" title="Descargar recibo">📄 Recibo</a>
-                  <a href="{% url 'editar_venta' venta.id %}" class="btn btn-sm btn-warning">Editar</a>
-                  <a href="#" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">Cancelar</a>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-success" title="Descargar recibo">📄</a>
+                    <a href="{% url 'editar_venta' venta.id %}" class="btn btn-warning" title="Editar venta">✏️</a>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Estado
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        {% if venta.estado != 'pendiente' %}
+                          <a class="dropdown-item" href="{% url 'cambiar_estado_venta' venta.id 'pendiente' %}" onclick="return confirm('¿Cambiar a Pendiente?')">
+                            ⏳ Pendiente
+                          </a>
+                        {% endif %}
+                        {% if venta.estado != 'completada' %}
+                          <a class="dropdown-item" href="{% url 'cambiar_estado_venta' venta.id 'completada' %}" onclick="return confirm('¿Cambiar a Completada?')">
+                            ✅ Completada
+                          </a>
+                        {% endif %}
+                        {% if venta.estado != 'cancelada' %}
+                          <a class="dropdown-item" href="{% url 'cambiar_estado_venta' venta.id 'cancelada' %}" onclick="return confirm('¿Cambiar a Cancelada?')">
+                            ❌ Cancelada
+                          </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
               {% empty %}
