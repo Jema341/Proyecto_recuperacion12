@@ -88,7 +88,7 @@
                 <td>
                   <a href="{% url 'cliente_detalle' cliente.id %}" class="btn btn-sm btn-info" title="Ver detalles">👁️</a>
                   <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-sm btn-warning" title="Editar cliente">✏️</a>
-                  <a href="#" class="btn btn-sm btn-danger" title="Eliminar cliente" onclick="return confirm('¿Está seguro de que desea eliminar este cliente?')">🗑️</a>
+                  <a href="{% url 'eliminar_cliente' cliente.id %}" class="btn btn-sm btn-danger" title="Eliminar cliente">🗑️</a>
                 </td>
               </tr>
               {% empty %}

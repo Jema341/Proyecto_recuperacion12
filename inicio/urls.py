@@ -27,17 +27,20 @@ urlpatterns = [
     path('productos/crear/', views.crear_producto, name='crear_producto'),
     path('productos/<int:id>/', views.producto_detalle, name='producto_detalle'),
     path('productos/<int:id>/editar/', views.editar_producto, name='editar_producto'),
+    path('productos/<int:id>/eliminar/', views.eliminar_producto, name='eliminar_producto'),
 
     # Clientes
     path('clientes/', views.clientes, name='clientes'),
     path('clientes/<int:id>/', views.cliente_detalle, name='cliente_detalle'),
     path('clientes/<int:id>/editar/', views.editar_cliente, name='editar_cliente'),
+    path('clientes/<int:id>/eliminar/', views.eliminar_cliente, name='eliminar_cliente'),
 
     # Ventas
     path('ventas/', views.ventas, name='ventas'),
     path('ventas/<int:id>/editar/', views.editar_venta, name='editar_venta'),
     path('ventas/<int:id>/recibo/', views.descargar_recibo_venta, name='descargar_recibo_venta'),
     path('ventas/<int:id>/estado/<str:estado>/', views.cambiar_estado_venta, name='cambiar_estado_venta'),
+    path('ventas/<int:id>/eliminar/', views.eliminar_venta, name='eliminar_venta'),
 
     # Reportes
     path('reportes/', views.reportes, name='reportes'),

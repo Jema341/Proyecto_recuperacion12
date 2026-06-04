@@ -171,6 +171,7 @@
                   <td>
                     <a href="{% url 'descargar_recibo_venta' venta.id %}" class="btn btn-sm btn-success" title="Descargar recibo">📄</a>
                     <a href="{% url 'editar_venta' venta.id %}" class="btn btn-sm btn-warning" title="Editar venta">✏️</a>
+                    <a href="{% url 'eliminar_venta' venta.id %}" class="btn btn-sm btn-danger" title="Eliminar venta">🗑️</a>
                   </td>
                 </tr>
                 {% endfor %}

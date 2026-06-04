@@ -309,6 +309,63 @@ def crear_producto(request):
     return render(request, 'crear_producto.html')
 
 
+def eliminar_producto(request, id):
+    """Elimina un producto con confirmación"""
+    producto = Producto.objects.get(id=id)
+    
+    if request.method == 'POST':
+        nombre_producto = producto.nombre
+        producto.delete()
+        messages.success(request, f'Producto "{nombre_producto}" eliminado correctamente')
+        return redirect('productos')
+    
+    # GET - mostrar confirmación
+    return render(request, 'confirmar_eliminar.html', {
+        'objeto': producto,
+        'tipo': 'producto',
+        'url_cancelar': 'productos'
+    })
+
+
+def eliminar_cliente(request, id):
+    """Elimina un cliente con confirmación"""
+    cliente = Cliente.objects.get(id=id)
+    
+    if request.method == 'POST':
+        nombre_cliente = cliente.nombre
+        # Las ventas se eliminarán en cascada si está configurado
+        cliente.delete()
+        messages.success(request, f'Cliente "{nombre_cliente}" eliminado correctamente')
+        return redirect('clientes')
+    
+    # GET - mostrar confirmación
+    ventas_asociadas = Venta.objects.filter(cliente=cliente).count()
+    return render(request, 'confirmar_eliminar.html', {
+        'objeto': cliente,
+        'tipo': 'cliente',
+        'url_cancelar': 'clientes',
+        'ventas_asociadas': ventas_asociadas
+    })
+
+
+def eliminar_venta(request, id):
+    """Elimina una venta con confirmación"""
+    venta = Venta.objects.get(id=id)
+    
+    if request.method == 'POST':
+        venta_id = venta.id
+        venta.delete()
+        messages.success(request, f'Venta #{venta_id} eliminada correctamente')
+        return redirect('ventas')
+    
+    # GET - mostrar confirmación
+    return render(request, 'confirmar_eliminar.html', {
+        'objeto': venta,
+        'tipo': 'venta',
+        'url_cancelar': 'ventas'
+    })
+
+
 # Clientes
 def clientes(request):
     clientes = Cliente.objects.all()
