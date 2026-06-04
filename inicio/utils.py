@@ -44,3 +44,16 @@ def formatear_moneda(cantidad):
         str: Cantidad formateada como moneda
     """
     return f"${cantidad:,.2f}"
+
+
+def formatear_porcentaje(valor):
+    """
+    Formatea un valor como porcentaje.
+    
+    Args:
+        valor (float): Valor decimal para formatear
+    
+    Returns:
+        str: Valor formateado en porcentaje
+    """
+    return f"{valor:.2f}%"
