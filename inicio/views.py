@@ -430,73 +430,68 @@ def editar_venta(request, id):
 
 # Reportes
 def reportes(request):
-    # Obtener fechas del formulario
-    fecha_inicio_str = request.GET.get('fecha_inicio', '')
-    fecha_fin_str = request.GET.get('fecha_fin', '')
+    # Parámetros de fecha
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
     
-    # Valores por defecto: últimos 30 días
-    if not fecha_fin_str:
-        fecha_fin = datetime.now()
+    # Convertir strings a datetime
+    if fecha_inicio:
+        try:
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        except:
+            fecha_inicio_dt = None
     else:
-        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+        fecha_inicio_dt = None
     
-    if not fecha_inicio_str:
-        fecha_inicio = fecha_fin - timedelta(days=30)
+    if fecha_fin:
+        try:
+            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            # Agregar un día para incluir todo el día final
+            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
+        except:
+            fecha_fin_dt = None
     else:
-        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+        fecha_fin_dt = None
     
     # Filtrar ventas por rango de fechas
-    ventas_rango = Venta.objects.filter(
-        fecha_venta__gte=fecha_inicio,
-        fecha_venta__lte=fecha_fin,
-        estado='completada'
-    )
+    ventas_filtro = Venta.objects.all()
+    if fecha_inicio_dt:
+        ventas_filtro = ventas_filtro.filter(fecha_venta__gte=fecha_inicio_dt)
+    if fecha_fin_dt:
+        ventas_filtro = ventas_filtro.filter(fecha_venta__lte=fecha_fin_dt)
     
-    # Datos generales
+    # Datos generales (siempre totales)
     total_productos = Producto.objects.count()
     total_clientes = Cliente.objects.count()
-    total_ventas = Venta.objects.filter(
-        fecha_venta__gte=fecha_inicio,
-        fecha_venta__lte=fecha_fin
-    ).count()
-    ventas_completadas = ventas_rango.count()
-    ingresos_totales = sum(v.total for v in ventas_rango)
+    total_ventas = ventas_filtro.count()
+    ventas_completadas = ventas_filtro.filter(estado='completada').count()
     
-    # Datos para gráfico de ventas por mes (en el rango de fechas)
+    # Datos para gráfico de ventas por mes (últimos 6 meses o rango seleccionado)
     meses = []
     ventas_por_mes = []
     
-    fecha_actual = fecha_inicio
-    while fecha_actual <= fecha_fin:
-        mes = fecha_actual.strftime('%b %Y')
+    for i in range(5, -1, -1):
+        fecha = datetime.now() - timedelta(days=30*i)
+        mes = fecha.strftime('%B %Y')
         meses.append(mes)
         
         # Ventas del mes
-        ventas_mes = Venta.objects.filter(
-            fecha_venta__year=fecha_actual.year,
-            fecha_venta__month=fecha_actual.month,
-            fecha_venta__gte=fecha_inicio,
-            fecha_venta__lte=fecha_fin,
+        ventas_mes = ventas_filtro.filter(
+            fecha_venta__year=fecha.year,
+            fecha_venta__month=fecha.month,
             estado='completada'
         ).aggregate(total=Sum('total'))['total'] or 0
         ventas_por_mes.append(float(ventas_mes))
-        
-        # Avanzar un mes
-        if fecha_actual.month == 12:
-            fecha_actual = fecha_actual.replace(year=fecha_actual.year + 1, month=1)
-        else:
-            fecha_actual = fecha_actual.replace(month=fecha_actual.month + 1)
     
     context = {
         'total_productos': total_productos,
         'total_clientes': total_clientes,
         'total_ventas': total_ventas,
         'ventas_completadas': ventas_completadas,
-        'ingresos_totales': ingresos_totales,
         'meses': json.dumps(meses),
         'ventas_por_mes': json.dumps(ventas_por_mes),
-        'fecha_inicio': fecha_inicio.strftime('%Y-%m-%d'),
-        'fecha_fin': fecha_fin.strftime('%Y-%m-%d'),
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
     }
 
     return render(request, 'reportes.html', context)
@@ -505,45 +500,50 @@ def reportes(request):
 def exportar_reporte_pdf(request):
     """Genera y descarga un reporte en PDF con filtro de fechas"""
     
-    # Obtener fechas del formulario
-    fecha_inicio_str = request.GET.get('fecha_inicio', '')
-    fecha_fin_str = request.GET.get('fecha_fin', '')
+    # Parámetros de fecha
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
     
-    # Valores por defecto: últimos 30 días
-    if not fecha_fin_str:
-        fecha_fin = datetime.now()
+    # Convertir strings a datetime
+    if fecha_inicio:
+        try:
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        except:
+            fecha_inicio_dt = None
     else:
-        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+        fecha_inicio_dt = None
     
-    if not fecha_inicio_str:
-        fecha_inicio = fecha_fin - timedelta(days=30)
+    if fecha_fin:
+        try:
+            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            # Agregar un día para incluir todo el día final
+            fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
+        except:
+            fecha_fin_dt = None
     else:
-        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+        fecha_fin_dt = None
     
-    # Recopilar datos con filtro de fechas
+    # Filtrar ventas por rango de fechas
+    ventas_filtro = Venta.objects.all()
+    if fecha_inicio_dt:
+        ventas_filtro = ventas_filtro.filter(fecha_venta__gte=fecha_inicio_dt)
+    if fecha_fin_dt:
+        ventas_filtro = ventas_filtro.filter(fecha_venta__lte=fecha_fin_dt)
+    
+    # Recopilar datos
     total_productos = Producto.objects.count()
     total_clientes = Cliente.objects.count()
-    
-    total_ventas = Venta.objects.filter(
-        fecha_venta__gte=fecha_inicio,
-        fecha_venta__lte=fecha_fin
-    ).count()
-    
-    ventas_completadas = Venta.objects.filter(
-        fecha_venta__gte=fecha_inicio,
-        fecha_venta__lte=fecha_fin,
-        estado='completada'
-    ).count()
-    
-    ingresos_totales = sum(v.total for v in Venta.objects.filter(
-        fecha_venta__gte=fecha_inicio,
-        fecha_venta__lte=fecha_fin,
-        estado='completada'
-    ))
+    total_ventas = ventas_filtro.count()
+    ventas_completadas = ventas_filtro.filter(estado='completada').count()
+    ingresos_totales = sum(v.total for v in ventas_filtro.filter(estado='completada'))
     
     # Crear respuesta PDF
+    nombre_archivo = "reporte_ventas.pdf"
+    if fecha_inicio and fecha_fin:
+        nombre_archivo = f"reporte_ventas_{fecha_inicio}_a_{fecha_fin}.pdf"
+    
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="reporte_ventas.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
     
     # Crear documento PDF
     buffer = BytesIO()
@@ -574,8 +574,19 @@ def exportar_reporte_pdf(request):
     
     # Título
     elements.append(Paragraph("REPORTE DE VENTAS", title_style))
-    elements.append(Paragraph(f"Período: {fecha_inicio.strftime('%d/%m/%Y')} al {fecha_fin.strftime('%d/%m/%Y')}", styles['Normal']))
-    elements.append(Paragraph(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", styles['Normal']))
+    
+    # Información del período
+    periodo_text = f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+    if fecha_inicio or fecha_fin:
+        periodo_text += " | Período: "
+        if fecha_inicio and fecha_fin:
+            periodo_text += f"{fecha_inicio} a {fecha_fin}"
+        elif fecha_inicio:
+            periodo_text += f"desde {fecha_inicio}"
+        else:
+            periodo_text += f"hasta {fecha_fin}"
+    
+    elements.append(Paragraph(periodo_text, styles['Normal']))
     elements.append(Spacer(1, 0.3*inch))
     
     # Resumen General
@@ -604,14 +615,10 @@ def exportar_reporte_pdf(request):
     elements.append(resumen_table)
     elements.append(Spacer(1, 0.3*inch))
     
-    # Últimas Ventas en el período
-    elements.append(Paragraph("ÚLTIMAS 10 VENTAS COMPLETADAS EN EL PERÍODO", heading_style))
+    # Últimas Ventas
+    elements.append(Paragraph("ÚLTIMAS 10 VENTAS COMPLETADAS", heading_style))
     
-    ultimas_ventas = Venta.objects.filter(
-        fecha_venta__gte=fecha_inicio,
-        fecha_venta__lte=fecha_fin,
-        estado='completada'
-    ).order_by('-fecha_venta')[:10]
+    ultimas_ventas = ventas_filtro.filter(estado='completada').order_by('-fecha_venta')[:10]
     
     if ultimas_ventas:
         ventas_data = [['ID', 'Cliente', 'Producto', 'Cantidad', 'Total', 'Fecha']]
@@ -638,7 +645,7 @@ def exportar_reporte_pdf(request):
         ]))
         elements.append(ventas_table)
     else:
-        elements.append(Paragraph("No hay ventas completadas en el período seleccionado", styles['Normal']))
+        elements.append(Paragraph("No hay ventas completadas en este período", styles['Normal']))
     
     elements.append(Spacer(1, 0.3*inch))
     
@@ -681,7 +688,6 @@ def exportar_reporte_pdf(request):
     buffer.close()
     
     return response
-
 
 
 # Perfil de Usuario

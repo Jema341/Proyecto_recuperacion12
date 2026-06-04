@@ -8,10 +8,39 @@
         <div class="col-12">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h4>Reportes</h4>
-            <a href="{% url 'exportar_reporte_pdf' %}" class="btn btn-danger btn-sm" title="Descargar reporte en PDF">
+            <a href="{% url 'exportar_reporte_pdf' %}?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" class="btn btn-danger btn-sm" title="Descargar reporte en PDF">
               <i class="fas fa-file-pdf"></i> Exportar PDF
             </a>
           </div>
+        </div>
+      </div>
+
+      <!-- Filtro de Fechas -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="card-title">🗓️ Filtrar por Período</h6>
+        </div>
+        <div class="card-body">
+          <form method="GET" class="row g-2">
+            <div class="col-md-4">
+              <input type="date" class="form-control" name="fecha_inicio" placeholder="Fecha inicio" value="{{ fecha_inicio }}">
+            </div>
+            <div class="col-md-4">
+              <input type="date" class="form-control" name="fecha_fin" placeholder="Fecha fin" value="{{ fecha_fin }}">
+            </div>
+            <div class="col-md-4">
+              <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+              {% if fecha_inicio or fecha_fin %}
+                <a href="{% url 'reportes' %}" class="btn btn-secondary w-100 mt-2">Limpiar</a>
+              {% endif %}
+            </div>
+          </form>
+          {% if fecha_inicio or fecha_fin %}
+            <div class="alert alert-info mt-3 mb-0">
+              📅 Mostrando datos desde {% if fecha_inicio %}{{ fecha_inicio }}{% else %}el inicio{% endif %} 
+              hasta {% if fecha_fin %}{{ fecha_fin }}{% else %}hoy{% endif %}
+            </div>
+          {% endif %}
         </div>
       </div>
 
