@@ -83,7 +83,7 @@
       </li>
       <li>
         <a href="{% url 'edit_profile' %}">
-          <i class="zmdi zmdi-settings text-warning"></i> <span>Configuración</span>
+          <i class="zmdi zmdi-lock text-warning"></i> <span>Configuración</span>
         </a>
       </li>
       <li>
@@ -133,11 +133,7 @@
     </li>
     <li class="nav-item">
       <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-        {% if user.is_authenticated and user_profile.avatar %}
-          <img src="{{ user_profile.avatar.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #667eea;" alt="Avatar">
-        {% else %}
-          <span class="user-profile"><i class="fa fa-user-circle" style="font-size: 24px;"></i></span>
-        {% endif %}
+        <span class="user-profile"><i class="fa fa-user-circle" style="font-size: 24px;"></i></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-right">
         {% if user.is_authenticated %}
