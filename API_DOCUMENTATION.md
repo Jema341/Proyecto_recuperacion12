@@ -7,10 +7,12 @@
 **GET** `/productos/`
 - Retorna: Lista de todos los productos
 - Parámetros: ninguno
+- Formato de respuesta: JSON
 
 **GET** `/producto/<id>/`
 - Retorna: Detalle de un producto específico
 - Parámetros: id (entero)
+- Formato de respuesta: JSON
 
 ### Clientes
 
@@ -86,7 +88,7 @@
 
 ## Autenticación
 
-Actualmente, la aplicación requiere estar logueado en el panel admin para acceder a datos.
+Actualmente, la aplicación requiere estar logueado para acceder a los datos de la API y las páginas del panel administrativo.
 
 ## Versión
 
