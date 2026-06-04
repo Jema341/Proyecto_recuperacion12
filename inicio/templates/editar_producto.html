@@ -52,7 +52,7 @@
               <label for="imagen">Imagen del Producto</label>
               {% if producto.imagen %}
                 <div class="mb-2">
-                  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="max-width: 200px; border-radius: 4px;">
+                  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" loading="lazy" style="max-width: 200px; border-radius: 4px;">
                 </div>
               {% endif %}
               <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
