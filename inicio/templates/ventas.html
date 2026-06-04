@@ -106,7 +106,12 @@
                         {% endif %}
                       </div>
                     </div>
-                    <a href="{% url 'eliminar_venta' venta.id %}" class="btn btn-danger" title="Eliminar venta">🗑️</a>
+                    <a href="{% url 'eliminar_venta' venta.id %}"
+                       class="btn btn-danger"
+                       title="Eliminar venta"
+                       onclick="return confirm('¿Está seguro de eliminar esta venta?');">
+                       eliminar
+                    </a>
                   </div>
                 </td>
               </tr>
