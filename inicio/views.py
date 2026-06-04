@@ -441,7 +441,7 @@ def eliminar_cliente(request, id):
 
 def eliminar_venta(request, id):
     """Elimina una venta con confirmación"""
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     if request.method == 'POST':
         venta_id = venta.id
@@ -610,7 +610,7 @@ def ventas(request):
 
 
 def editar_venta(request, id):
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     if request.method == 'POST':
         venta.cantidad = request.POST.get('cantidad', venta.cantidad)
@@ -629,7 +629,7 @@ def editar_venta(request, id):
 def descargar_recibo_venta(request, id):
     """Genera y descarga un recibo PDF de una venta"""
     
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     # Crear respuesta PDF
     response = HttpResponse(content_type='application/pdf')
@@ -810,7 +810,7 @@ def descargar_recibo_venta(request, id):
 
 def cambiar_estado_venta(request, id, estado):
     """Cambia rápidamente el estado de una venta"""
-    venta = Venta.objects.get(id=id)
+    venta = get_object_or_404(Venta, id=id)
     
     # Validar que el estado sea válido
     estados_validos = ['pendiente', 'completada', 'cancelada']
