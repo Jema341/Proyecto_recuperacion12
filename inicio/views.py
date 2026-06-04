@@ -230,7 +230,29 @@ def productos(request):
 
 def producto_detalle(request, id):
     producto = Producto.objects.get(id=id)
-    return render(request, 'producto_detalle.html', {'producto': producto})
+    
+    # Obtener ventas del producto
+    ventas_producto = Venta.objects.filter(producto=producto, estado='completada').order_by('-fecha_venta')
+    
+    # Calcular estadísticas
+    total_unidades_vendidas = sum(v.cantidad for v in ventas_producto)
+    ingresos_totales = sum(v.total for v in ventas_producto)
+    precio_promedio = ingresos_totales / total_unidades_vendidas if total_unidades_vendidas > 0 else 0
+    
+    # Últimas 10 ventas
+    ultimas_ventas = ventas_producto[:10]
+    
+    context = {
+        'producto': producto,
+        'total_unidades_vendidas': total_unidades_vendidas,
+        'ingresos_totales': ingresos_totales,
+        'precio_promedio': precio_promedio,
+        'ultimas_ventas': ultimas_ventas,
+        'total_ventas': ventas_producto.count()
+    }
+    
+    return render(request, 'producto_detalle.html', context)
+
 
 
 def editar_producto(request, id):
