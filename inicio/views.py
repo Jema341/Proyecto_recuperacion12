@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,6 +8,29 @@ from .models import Producto, Cliente, Venta
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 import json
+
+
+def parse_date(value, format='%Y-%m-%d'):
+    """Convierte una cadena de fecha en un objeto datetime.
+
+    Args:
+        value (str): Fecha en formato string.
+        format (str): Formato esperado de la fecha.
+
+    Returns:
+        datetime|None: Objeto datetime o None si no se puede convertir.
+    """
+    try:
+        return datetime.strptime(value, format)
+    except (ValueError, TypeError):
+        return None
+
+
+def end_of_day(value):
+    """Devuelve la fecha con la hora al final del día."""
+    if value:
+        return value.replace(hour=23, minute=59, second=59)
+    return value
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
