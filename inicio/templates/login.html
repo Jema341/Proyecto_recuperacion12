@@ -42,7 +42,7 @@
 		 	<div class="text-center">
 		 		<img src="{% static 'private/assets/images/logo-icon.svg' %}" alt="logo icon">
 		 	</div>
-		  <div class="card-title text-uppercase text-center py-3">Iniciar Sesión</div>
+		  <div class="card-title text-uppercase text-center py-3" style="color: #ff9f43;">Iniciar Sesión</div>
 		  {% if messages %}
 		    <div class="alert alert-danger" role="alert">
 		      {% for message in messages %}
@@ -82,8 +82,11 @@
 		 </div>
 		</div>
 		 <button type="submit" class="btn btn-light btn-block">Iniciar Sesión</button>
-		 <a href="{% url 'guest_login' %}" class="btn btn-outline-light btn-block mt-2">Ingresar como Invitado</a>
 		 </form>
+		 <div class="text-center mt-3">
+		   <p class="mb-2">O</p>
+		   <a href="{% url 'guest_login' %}" class="btn btn-outline-light btn-block">Ingresar como Invitado</a>
+		 </div>
 		   </div>
 		  </div>
 		  <div class="card-footer text-center py-3">

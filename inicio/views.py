@@ -221,18 +221,22 @@ def login_view(request):
 
 def guest_login(request):
     guest_username = 'invitado'
-    guest_user, created = User.objects.get_or_create(
-        username=guest_username,
-        defaults={
-            'email': 'invitado@example.com',
-            'first_name': 'Invitado',
-            'last_name': 'Temporal'
-        }
-    )
-    if created:
-        guest_user.set_unusable_password()
-        guest_user.save()
-
+    try:
+        guest_user = User.objects.get(username=guest_username)
+    except User.DoesNotExist:
+        try:
+            guest_user = User.objects.create_user(
+                username=guest_username,
+                email='guest-temporal@noreply.local',
+                first_name='Invitado',
+                last_name='Temporal'
+            )
+            guest_user.set_unusable_password()
+            guest_user.save()
+        except Exception as e:
+            messages.error(request, 'Error al crear usuario invitado')
+            return redirect('login')
+    
     auth_login(request, guest_user)
     messages.info(request, 'Has ingresado como invitado')
     return redirect('inicio')
