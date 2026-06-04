@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import UserProfile
+from django.db.models import Q
+from .models import UserProfile, Product
 
 # Create your views here.
 def inicio(request):
@@ -19,7 +20,25 @@ def forms(request):
   return render(request, 'forms.html')
 
 def tables(request):
-  return render(request, 'tables.html')
+  # Obtener parámetro de búsqueda
+  search_query = request.GET.get('search', '')
+  
+  # Obtener todos los productos
+  products = Product.objects.all()
+  
+  # Si hay búsqueda, filtrar
+  if search_query:
+    products = products.filter(
+      Q(name__icontains=search_query) |
+      Q(description__icontains=search_query) |
+      Q(category__icontains=search_query)
+    )
+  
+  context = {
+    'products': products,
+    'search_query': search_query,
+  }
+  return render(request, 'tables.html', context)
 
 def calendar(request):
   return render(request, 'calendar.html')
