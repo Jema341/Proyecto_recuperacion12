@@ -56,10 +56,55 @@ def dashboard(request):
         except:
             pass
     
+    # INDICADORES KPI
+    total_ventas = Venta.objects.count()
+    ventas_completadas = Venta.objects.filter(estado='completada').count()
+    ventas_pendientes = Venta.objects.filter(estado='pendiente').count()
+    
+    # Tasa de conversión
+    tasa_conversion = (ventas_completadas / total_ventas * 100) if total_ventas > 0 else 0
+    
+    # Ingresos totales
+    ingresos_totales = Venta.objects.filter(estado='completada').aggregate(total=Sum('total'))['total'] or 0
+    
+    # Promedio de venta
+    promedio_venta = (ingresos_totales / ventas_completadas) if ventas_completadas > 0 else 0
+    
+    # Ventas este mes
+    hoy = datetime.now()
+    ventas_este_mes = Venta.objects.filter(
+        estado='completada',
+        fecha_venta__year=hoy.year,
+        fecha_venta__month=hoy.month
+    ).aggregate(total=Sum('total'))['total'] or 0
+    
+    # Ventas mes pasado
+    mes_pasado = hoy - timedelta(days=30)
+    ventas_mes_pasado = Venta.objects.filter(
+        estado='completada',
+        fecha_venta__year=mes_pasado.year,
+        fecha_venta__month=mes_pasado.month
+    ).aggregate(total=Sum('total'))['total'] or 0
+    
+    # Crecimiento
+    crecimiento = ((ventas_este_mes - ventas_mes_pasado) / ventas_mes_pasado * 100) if ventas_mes_pasado > 0 else 0
+    
+    # Clientes activos (que han hecho compras)
+    clientes_activos = Cliente.objects.filter(venta__estado='completada').distinct().count()
+    
     context = {
         'productos_stock_bajo': productos_stock_bajo,
         'clientes_nuevos': clientes_nuevos,
         'top_productos': top_productos_detalle,
+        # KPIs
+        'tasa_conversion': round(tasa_conversion, 2),
+        'ingresos_totales': round(ingresos_totales, 2),
+        'promedio_venta': round(promedio_venta, 2),
+        'ventas_este_mes': round(ventas_este_mes, 2),
+        'crecimiento': round(crecimiento, 2),
+        'clientes_activos': clientes_activos,
+        'ventas_pendientes': ventas_pendientes,
+        'total_productos': Producto.objects.count(),
     }
     
     return render(request, 'dashboard.html', context)

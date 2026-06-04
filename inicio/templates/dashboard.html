@@ -23,6 +23,116 @@
   </div>
 </div>
 
+<!-- INDICADORES KPI -->
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <h5 class="mb-3 mt-4">📊 Indicadores KPI</h5>
+    <div class="row">
+      <!-- Ingresos Totales -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-0 small">Ingresos Totales</p>
+                <h4 class="mb-0">${{ ingresos_totales }}</h4>
+              </div>
+              <i class="fa fa-dollar fa-3x opacity-5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Promedio de Venta -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-0 small">Promedio por Venta</p>
+                <h4 class="mb-0">${{ promedio_venta }}</h4>
+              </div>
+              <i class="fa fa-bar-chart fa-3x opacity-5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tasa de Conversión -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-0 small">Tasa de Conversión</p>
+                <h4 class="mb-0">{{ tasa_conversion }}%</h4>
+              </div>
+              <i class="fa fa-percent fa-3x opacity-5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Crecimiento Mensual -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card {% if crecimiento >= 0 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-0 small">Crecimiento M/M</p>
+                <h4 class="mb-0">{{ crecimiento }}%</h4>
+              </div>
+              <i class="fa {% if crecimiento >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} fa-3x opacity-5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-3">
+      <!-- Ventas Este Mes -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card border-left-primary">
+          <div class="card-body">
+            <h6 class="card-title text-muted">Ventas Este Mes</h6>
+            <h3 class="text-primary">${{ ventas_este_mes }}</h3>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ventas Pendientes -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card border-left-warning">
+          <div class="card-body">
+            <h6 class="card-title text-muted">Ventas Pendientes</h6>
+            <h3 class="text-warning">{{ ventas_pendientes }}</h3>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Clientes Activos -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card border-left-success">
+          <div class="card-body">
+            <h6 class="card-title text-muted">Clientes Activos</h6>
+            <h3 class="text-success">{{ clientes_activos }}</h3>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Productos -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card border-left-info">
+          <div class="card-body">
+            <h6 class="card-title text-muted">Total Productos</h6>
+            <h3 class="text-info">{{ total_productos }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Alertas de Stock Bajo -->
 {% if productos_stock_bajo %}
 <div class="content-wrapper">
