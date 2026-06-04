@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
+
     path('ui-icons/', views.ui_icons, name='ui_icons'),
     path('forms/', views.forms, name='forms'),
     path('tables/', views.tables, name='tables'),
