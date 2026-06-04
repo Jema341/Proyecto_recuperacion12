@@ -34,6 +34,7 @@ env/
 local_settings.py
 /media
 /staticfiles
+.env
 
 # IDE
 .vscode/
