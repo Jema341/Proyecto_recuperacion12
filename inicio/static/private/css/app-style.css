@@ -2056,11 +2056,11 @@ table.grid td {
 }
 .alert-danger {
     color: #ffffff;
-    background-color: #f5365c;
-    border-color: #f5365c;
+    background-color: #6c757d;
+    border-color: #5a6268;
 }
 .alert-danger .alert-link {
-    color: #ffcacf;
+    color: #e2e3e5;
 }
 
 .alert-warning {

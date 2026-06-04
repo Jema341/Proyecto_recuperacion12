@@ -219,6 +219,25 @@ def login_view(request):
     return render(request, 'login.html')
 
 
+def guest_login(request):
+    guest_username = 'invitado'
+    guest_user, created = User.objects.get_or_create(
+        username=guest_username,
+        defaults={
+            'email': 'invitado@example.com',
+            'first_name': 'Invitado',
+            'last_name': 'Temporal'
+        }
+    )
+    if created:
+        guest_user.set_unusable_password()
+        guest_user.save()
+
+    auth_login(request, guest_user)
+    messages.info(request, 'Has ingresado como invitado')
+    return redirect('inicio')
+
+
 @login_required
 def logout_view(request):
     from django.contrib.auth import logout
