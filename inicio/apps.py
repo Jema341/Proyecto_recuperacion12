@@ -5,3 +5,7 @@ class InicioConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'inicio'
     verbose_name = 'Sistema de Inicio'
+    
+    def ready(self):
+        import inicio.signals
+        import inicio.models
