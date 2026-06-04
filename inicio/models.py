@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 # Modelo para productos
 class Producto(models.Model):
-    nombre = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200, db_index=True)
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0)
@@ -51,7 +51,7 @@ def save_user_profile(sender, instance, **kwargs):
 # Modelo para clientes
 class Cliente(models.Model):
     nombre = models.CharField(max_length=200)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, db_index=True)
     telefono = models.CharField(max_length=20, blank=True)
     direccion = models.TextField(blank=True)
     ciudad = models.CharField(max_length=100, blank=True)
