@@ -63,6 +63,12 @@ class ClienteForm(forms.ModelForm):
             'ciudad': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ciudad'}),
         }
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Cliente.objects.filter(email=email).exists():
+            raise forms.ValidationError('Este correo ya está registrado para otro cliente.')
+        return email
+
 
 class VentaForm(forms.ModelForm):
     class Meta:
