@@ -57,6 +57,11 @@ class Venta(models.Model):
     )
     notas = models.TextField(blank=True, null=True, help_text="Notas adicionales sobre la venta")
 
+    def save(self, *args, **kwargs):
+        if self.cantidad is not None and self.precio_unitario is not None:
+            self.total = self.precio_unitario * self.cantidad
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Venta {self.id} - {self.cliente.nombre}"
 
