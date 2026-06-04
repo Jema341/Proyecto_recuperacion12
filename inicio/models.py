@@ -35,6 +35,31 @@ class Profile(models.Model):
         return f"Perfil de {self.user.username}"
 
 
+class Mensaje(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mensajes')
+    asunto = models.CharField(max_length=200)
+    contenido = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    leido = models.BooleanField(default=False)
+    tipo = models.CharField(
+        max_length=20,
+        choices=[
+            ('mensaje', 'Mensaje'),
+            ('notificacion', 'Notificación'),
+            ('alerta', 'Alerta'),
+        ],
+        default='mensaje'
+    )
+
+    def __str__(self):
+        return f"{self.asunto} - {self.usuario.username}"
+
+    class Meta:
+        verbose_name = "Mensaje"
+        verbose_name_plural = "Mensajes"
+        ordering = ['-fecha_envio']
+
+
 # Crear perfil automáticamente al crear un usuario
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
